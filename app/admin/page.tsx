@@ -5,6 +5,8 @@ import { isSupabaseConfigured, type DbAttivita } from "@/lib/data/supabase";
 import { requireUser } from "@/lib/supabase/server";
 import { createActivity } from "./actions";
 import { AdminBar, Flash, NotConfigured } from "./ui";
+import WinnerField from "./WinnerField";
+import { TEAMS } from "@/lib/teams";
 
 export default async function Admin({ searchParams }: { searchParams: Promise<{ ok?: string; err?: string }> }) {
   if (!isSupabaseConfigured()) return <NotConfigured />;
@@ -58,6 +60,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
             Descrizione (facoltativa, mai nomi di studenti)
             <textarea name="descrizione" rows={2} />
           </label>
+          <WinnerField />
           <button type="submit" className="btn">
             Crea come bozza
           </button>
@@ -76,6 +79,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
                     <span className="muted">
                       {fmt(a.data)}
                       {a.tipo ? ` · ${a.tipo}` : ""} · {t ? `${t.n} assegnazioni, ${t.s} punti` : "nessun punto"}
+                      {a.vincitore ? ` · vince ${TEAMS.find((x) => x.id === a.vincitore)?.name}` : ""}
                     </span>
                   </div>
                   <span className={`st ${a.annullata ? "annullata" : a.pubblicata ? "corso" : "programmata"}`}>

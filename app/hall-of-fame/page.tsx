@@ -49,7 +49,7 @@ export default async function Hall() {
         </div>
       </section>
       <section>
-        <SecH t="Vincitori delle sfide" sub="Tornei, quizzoni e prove: per ognuna, la squadra che ha preso più punti e la classe migliore." />
+        <SecH t="Vincitori delle sfide" sub="Tornei, quizzoni e prove: per ognuna la squadra vincitrice (indicata dagli organizzatori oppure, se non indicata, quella con più punti) e la classe migliore." />
         {sfide.length ? (
           <ul className="champs">
             {sfide.map((w) => (
@@ -65,20 +65,32 @@ export default async function Hall() {
                     {w.teams.map((t) => t.name).join(" e ")}
                   </div>
                   <div className="muted">
-                    {fmtS(w.act.date)} · miglior classe{" "}
-                    {w.classes.map((c, i) => (
-                      <span key={c}>
-                        {i ? ", " : ""}
-                        <Link href={`/classe/${classSlug(c)}`}>{c}</Link>
-                      </span>
-                    ))}{" "}
-                    ({w.classPts} pt)
+                    {fmtS(w.act.date)}
+                    {w.classes.length ? (
+                      <>
+                        {" "}
+                        · miglior classe{" "}
+                        {w.classes.map((c, i) => (
+                          <span key={c}>
+                            {i ? ", " : ""}
+                            <Link href={`/classe/${classSlug(c)}`}>{c}</Link>
+                          </span>
+                        ))}{" "}
+                        ({w.classPts} pt)
+                      </>
+                    ) : null}
                   </div>
                 </div>
-                <div className="c-pts">
-                  {w.pts}
-                  <small>punti</small>
-                </div>
+                {w.pts > 0 ? (
+                  <div className="c-pts">
+                    {w.pts}
+                    <small>punti</small>
+                  </div>
+                ) : (
+                  <div className="c-pts">
+                    <small>vincitrice</small>
+                  </div>
+                )}
               </li>
             ))}
           </ul>

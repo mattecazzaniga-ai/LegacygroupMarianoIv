@@ -38,15 +38,21 @@ function parseKind(s: string): Kind | null {
   return null;
 }
 
-function parseClasses(t: Table, issues: Issue[]): Team[] {
-  if (t.missing.length) throw new SheetFormatError(`Foglio "Classi": mancano le colonne ${t.missing.join(", ")}`);
-  const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Classi", row, message });
+/** Squadra da un testo: accetta id, nome completo, nome breve o vecchio nome. */
+function teamLookup() {
   const byKey = new Map<string, Team>();
   TEAMS.forEach((tm) => {
     byKey.set(normKey(tm.id), tm);
     byKey.set(normKey(tm.name), tm);
   });
   Object.entries(TEAM_ALIASES).forEach(([alias, id]) => byKey.set(normKey(alias), TEAMS.find((t) => t.id === id)!));
+  return (s: string) => byKey.get(normKey(s));
+}
+
+function parseClasses(t: Table, issues: Issue[]): Team[] {
+  if (t.missing.length) throw new SheetFormatError(`Foglio "Classi": mancano le colonne ${t.missing.join(", ")}`);
+  const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Classi", row, message });
+  const findTeam = teamLookup();
   const assigned: Record<string, string[]> = Object.fromEntries(TEAMS.map((tm) => [tm.id, []]));
   const seen = new Map<string, number>();
   for (const { line, v } of t.rows) {
@@ -60,7 +66,7 @@ function parseClasses(t: Table, issues: Issue[]): Team[] {
       err(line, `La classe ${cls} compare due volte (già alla riga ${seen.get(cls)}). Questa riga è ignorata.`);
       continue;
     }
-    const team = byKey.get(normKey(v.squadra));
+    const team = findTeam(v.squadra);
     if (!team) {
       err(line, `Squadra "${v.squadra}" sconosciuta per la classe ${cls}. Usa uno di: ${TEAMS.map((x) => x.name).join(", ")}.`);
       continue;
@@ -91,6 +97,7 @@ function parseActivities(t: Table, issues: Issue[]): CalEvent[] {
   const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Attivita", row, message });
   const out: CalEvent[] = [];
   const seen = new Map<string, number>();
+  const findTeam = teamLookup();
   for (const { line, v } of t.rows) {
     const id = v.id;
     if (!id) {
@@ -129,7 +136,13 @@ function parseActivities(t: Table, issues: Issue[]): CalEvent[] {
       }
       end = fine;
     }
-    out.push({ id, date, end, title: v.titolo, type: v.tipo, desc: v.descrizione, status: st === "annullata" ? "annullata" : "auto" });
+    let winner: string | undefined;
+    if (v.vincitore) {
+      const t = findTeam(v.vincitore);
+      if (t) winner = t.id;
+      else err(line, `Squadra vincitrice "${v.vincitore}" sconosciuta per "${id}": ignorata, vince chi ha più punti.`, "attenzione");
+    }
+    out.push({ id, date, end, title: v.titolo, type: v.tipo, desc: v.descrizione, status: st === "annullata" ? "annullata" : "auto", winner });
   }
   return out;
 }
@@ -210,9 +223,10 @@ export function buildDatasetFromTables(t: Tables, fetchedAt = new Date().toISOSt
   const teams = parseClasses(t.classi, issues);
   const events = parseActivities(t.attivita, issues);
   const awards = parsePoints(t.punti, events, teams, issues);
+  // attività con punti, oppure con una squadra vincitrice scelta (anche senza punti)
   const activities: Activity[] = events
-    .filter((e) => awards.has(e.id))
-    .map((e) => ({ id: e.id, date: e.date, title: e.title, type: e.type, desc: e.desc, awards: awards.get(e.id)! }))
+    .filter((e) => e.status !== "annullata" && (awards.has(e.id) || e.winner))
+    .map((e) => ({ id: e.id, date: e.date, title: e.title, type: e.type, desc: e.desc, awards: awards.get(e.id) ?? [], winner: e.winner }))
     .sort((a, b) => a.date.localeCompare(b.date)); // sort stabile: a parità di data resta l'ordine di inserimento
   return { teams, activities, events, issues, source: "foglio", fetchedAt };
 }

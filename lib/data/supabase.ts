@@ -26,6 +26,7 @@ export interface DbAttivita {
   descrizione: string;
   annullata: boolean;
   pubblicata: boolean;
+  vincitore?: string | null;
 }
 export interface DbPunti {
   id: number;
@@ -66,6 +67,7 @@ export function rowsToTables(classi: DbClasse[], attivita: DbAttivita[], punti: 
         descrizione: a.descrizione ?? "",
         stato: a.annullata ? "annullata" : "auto",
         data_fine: a.data_fine ?? "",
+        vincitore: a.vincitore ? teamName(a.vincitore) : "",
       })),
       attivita.map((a) => a.id),
     ),

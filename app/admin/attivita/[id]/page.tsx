@@ -7,6 +7,7 @@ import { TEAMS } from "@/lib/teams";
 import { deleteActivity, deletePoint, setFlags, updateActivity } from "../../actions";
 import { AdminBar, Flash, NotConfigured } from "../../ui";
 import PointsForm from "./PointsForm";
+import WinnerField from "../../WinnerField";
 
 export default async function EditActivity({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string; err?: string }> }) {
   if (!isSupabaseConfigured()) return <NotConfigured />;
@@ -39,6 +40,7 @@ export default async function EditActivity({ params, searchParams }: { params: P
       <h1 className="page" style={{ fontSize: "clamp(34px,8vw,56px)" }}>
         {act.titolo}
       </h1>
+      {act.vincitore ? <p className="sub">Squadra vincitrice: <b>{TEAMS.find((t) => t.id === act.vincitore)?.name}</b></p> : null}
       <Flash ok={ok} err={err} />
 
       <div className="pubbar">
@@ -116,6 +118,7 @@ export default async function EditActivity({ params, searchParams }: { params: P
           Descrizione (mai nomi di studenti)
           <textarea name="descrizione" rows={3} defaultValue={act.descrizione} />
         </label>
+        <WinnerField value={act.vincitore} />
         <button type="submit" className="btn ghost">
           Salva i dati
         </button>

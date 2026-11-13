@@ -15,6 +15,8 @@ export interface Activity {
   type: string;
   desc: string;
   awards: Award[];
+  /** squadra vincitrice scelta dagli organizzatori (id); se manca vince chi ha più punti */
+  winner?: string;
 }
 
 export type EventStatus = "auto" | "annullata";
@@ -28,6 +30,8 @@ export interface CalEvent {
   type: string;
   desc: string;
   status: EventStatus;
+  /** squadra vincitrice scelta dagli organizzatori (id) */
+  winner?: string;
 }
 
 export interface Team {

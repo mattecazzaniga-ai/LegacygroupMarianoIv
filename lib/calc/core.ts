@@ -132,8 +132,12 @@ export function soleLeader(st: StandingRow[]): Team | null {
   return st[0] && st[0].pts > 0 && (!st[1] || st[1].pts < st[0].pts) ? st[0].team : null;
 }
 
-/** Squadre che hanno fatto più punti in un'attività (vincitrici della giornata). */
+/** Vincitrici di un'attività: quella scelta dagli organizzatori, altrimenti chi ha fatto più punti. */
 export function winnersOf(h: HistEntry, teams: Team[]): Team[] {
+  if (h.a.winner) {
+    const t = teams.find((x) => x.id === h.a.winner);
+    if (t) return [t];
+  }
   const m = Math.max(...teams.map((t) => h.ap[t.id]));
   return m > 0 ? teams.filter((t) => h.ap[t.id] === m) : [];
 }

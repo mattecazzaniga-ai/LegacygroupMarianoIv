@@ -114,3 +114,25 @@ describe("vincitori delle sfide", () => {
     expect(w[0].teams.map((t) => t.id).sort()).toEqual(["giganti", "mamuthones"]);
   });
 });
+
+describe("vincitore scelto dagli organizzatori", () => {
+  it("prevale sui punti e conta per record e badge, anche senza punti", () => {
+    const a1 = act("2026-10-01", [[C("shardana"), 10], [C("eleonora"), 2]], "Torneo");
+    a1.winner = "eleonora";
+    const a2 = act("2026-10-05", [], "Gara di solidarietà");
+    a2.winner = "eleonora";
+    const a3 = act("2026-10-09", [[C("eleonora"), 1]], "Quiz");
+    const m = buildModel({ teams, acts: [a1, a2, a3], tiebreak: "ultima", today });
+    const w = challengeWinners(m.teams, m.hist);
+    expect(w.map((x) => [x.act.title, x.teams[0].id, x.manual])).toEqual([
+      ["Quiz", "eleonora", false],
+      ["Gara di solidarietà", "eleonora", true],
+      ["Torneo", "eleonora", true],
+    ]);
+    expect(w[1].pts).toBe(0);
+    expect(m.records.find((r) => r.id === "vittorie")).toMatchObject({ v: 3, n: "Eleonora d'Arborea" });
+    expect(m.badgesOf(T.eleonora).map((b) => b.id)).toContain("dominatore");
+    // la classifica resta fatta solo di punti
+    expect(m.now.find((r) => r.team.id === "shardana")!.pts).toBe(10);
+  });
+});

@@ -21,6 +21,10 @@ create table if not exists public.attivita (
   updated_at  timestamptz not null default now()
 );
 
+-- squadra vincitrice scelta dagli organizzatori (facoltativa; se vuota vince chi ha più punti)
+alter table public.attivita add column if not exists vincitore text
+  check (vincitore is null or vincitore in ('componidori','mamuthones','eleonora','giganti','shardana','mariano-iv'));
+
 create table if not exists public.punti (
   id          bigint generated always as identity primary key,
   attivita_id bigint not null references public.attivita(id) on delete cascade,

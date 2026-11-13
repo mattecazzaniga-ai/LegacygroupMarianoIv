@@ -3,6 +3,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { redirect } from "next/navigation";
 import { isValidDate } from "@/lib/dates";
 import { DATA_TAG } from "@/lib/data/supabase";
+import { TEAMS } from "@/lib/teams";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
 /** Dopo ogni salvataggio il sito pubblico si aggiorna subito, senza aspettare il minuto. */
@@ -40,6 +41,8 @@ function readActivity(form: FormData) {
   if (!isValidDate(data)) return { error: "Data non valida." };
   if (data_fine && (!isValidDate(data_fine) || data_fine < data)) return { error: "La data di fine deve essere uguale o successiva alla data." };
   if (!titolo) return { error: "Scrivi il titolo." };
+  const vincitore = str(form, "vincitore");
+  if (vincitore && !TEAMS.some((t) => t.id === vincitore)) return { error: "Squadra vincitrice non valida." };
   return {
     row: {
       data,
@@ -47,6 +50,7 @@ function readActivity(form: FormData) {
       titolo,
       tipo: str(form, "tipo"),
       descrizione: str(form, "descrizione"),
+      vincitore: vincitore || null,
     },
   };
 }

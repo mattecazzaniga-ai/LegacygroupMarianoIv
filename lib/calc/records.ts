@@ -119,6 +119,8 @@ export interface ChallengeWinner {
   /** classi con più punti nella sfida */
   classes: string[];
   classPts: number;
+  /** vincitore scelto dagli organizzatori */
+  manual: boolean;
 }
 
 /** Albo delle sfide: per ogni attività con punti, chi l'ha vinta. Dalla più recente. */
@@ -128,13 +130,14 @@ export function challengeWinners(teams: Team[], hist: HistEntry[]): ChallengeWin
       const w = winnersOf(h, teams);
       const byCls: Record<string, number> = {};
       h.a.awards.forEach((x) => (byCls[x.cls] = (byCls[x.cls] || 0) + x.pts));
-      const best = Math.max(...Object.values(byCls));
+      const best = Math.max(0, ...Object.values(byCls));
       return {
         act: h.a,
         teams: w,
         pts: w.length ? h.ap[w[0].id] : 0,
         classes: best > 0 ? Object.keys(byCls).filter((c) => byCls[c] === best).sort() : [],
         classPts: best > 0 ? best : 0,
+        manual: !!h.a.winner && w.length === 1 && w[0].id === h.a.winner,
       };
     })
     .filter((x) => x.teams.length > 0)

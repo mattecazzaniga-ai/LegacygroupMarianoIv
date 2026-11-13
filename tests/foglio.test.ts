@@ -126,3 +126,18 @@ describe("i numeri tornano con il foglio (dati di prova)", () => {
     expect(st("a8", "2026-11-25")).toBe("conclusa"); // passata senza punti: "punti in aggiornamento"
   });
 });
+
+describe("colonna vincitore (facoltativa)", () => {
+  it("accetta nome o id della squadra; un'attività senza punti ma con vincitore entra nell'albo", () => {
+    const d = buildDataset({
+      attivita: "id,data,titolo,tipo,descrizione,stato,data_fine,vincitore\na1,2026-10-01,Gara,,,,,Mariano IV\na2,2026-10-02,Quiz,,,,,boh\n",
+      punti: PT_H + "a2,3A,5,collettiva\n",
+      classi: CLASSI,
+    });
+    expect(d.activities.map((a) => [a.id, a.winner ?? null, a.awards.length])).toEqual([
+      ["a1", "mariano-iv", 0],
+      ["a2", null, 1],
+    ]);
+    expect(d.issues).toContainEqual(expect.objectContaining({ level: "attenzione", row: 3 }));
+  });
+});
