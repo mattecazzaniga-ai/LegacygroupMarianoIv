@@ -13,6 +13,7 @@ export function AdminBar({ email }: { email?: string }) {
       <nav aria-label="Area organizzatori">
         <Link href="/admin">Attività</Link>
         <Link href="/admin/registro">Registro modifiche</Link>
+        <Link href="/admin/password">Password</Link>
         <Link href="/" target="_blank">Apri il sito ↗</Link>
       </nav>
       <form action={signOut}>

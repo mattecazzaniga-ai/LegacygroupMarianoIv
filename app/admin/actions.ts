@@ -125,3 +125,14 @@ export async function deletePoint(activityId: number, pointId: number) {
   refreshSite();
   back(path, "Assegnazione eliminata.");
 }
+
+export async function changePassword(form: FormData) {
+  const { sb } = await requireUser();
+  const p1 = String(form.get("password") ?? ""),
+    p2 = String(form.get("password2") ?? "");
+  if (p1.length < 10) back("/admin/password", undefined, "Usa almeno 10 caratteri.");
+  if (p1 !== p2) back("/admin/password", undefined, "Le due password non coincidono.");
+  const { error } = await sb.auth.updateUser({ password: p1 });
+  if (error) back("/admin/password", undefined, "Cambio non riuscito: " + error.message);
+  back("/admin/password", "Password cambiata.");
+}
