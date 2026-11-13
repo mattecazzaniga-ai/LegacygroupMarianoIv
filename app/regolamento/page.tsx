@@ -136,8 +136,7 @@ export default function Regolamento() {
               <h2>Il premio finale</h2>
               <p>A conclusione della competizione verrà individuata la squadra vincitrice: quella con più punti nella classifica generale.</p>
               <p>
-                <b>Il premio finale sarà comunicato successivamente</b>: tipologia, caratteristiche e modalità di assegnazione verranno rese note
-                dagli organizzatori.
+                <b>Il premio finale verrà reso noto più avanti.</b>
               </p>
             </div>
           </article>

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import type { Metadata, Viewport } from "next";
 import localFont from "next/font/local";
 import Nav from "@/components/Nav";
@@ -52,6 +53,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <b>Legacy Group</b> · Istituto Mariano IV, Oristano · 2026/27
             </div>
             <div>Organizzato dai rappresentanti di istituto. Sul sito compaiono solo le sigle delle classi, mai i nomi degli studenti.</div>
+            <div>
+              <Link href="/admin" className="foot-admin">
+                Area organizzatori
+              </Link>
+            </div>
           </div>
         </footer>
       </body>

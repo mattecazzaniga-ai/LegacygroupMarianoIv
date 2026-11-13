@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { BADGES } from "@/lib/calc/badges";
+import { challengeWinners } from "@/lib/calc/records";
 import { buildModel } from "@/lib/calc/model";
 import { act, C, T, teams } from "./helpers";
 
@@ -91,5 +92,25 @@ describe("Legacy Moment", () => {
     expect(titles).toContain("Cambio al vertice");
     expect(titles).toContain("Shardana a quota 50");
     expect(m.moments[0].d).toBe("2026-10-02"); // dal più recente
+  });
+});
+
+describe("vincitori delle sfide", () => {
+  it("per ogni attività: squadra e classe con più punti, pari merito inclusi, dalla più recente", () => {
+    const m = buildModel({
+      teams,
+      tiebreak: "ultima",
+      today,
+      acts: [
+        act("2026-10-01", [[C("eleonora", 0), 6], [C("eleonora", 1), 5], [C("shardana"), 10]], "Torneo di calcetto"),
+        act("2026-10-08", [[C("mamuthones"), 7], [C("giganti"), 7]], "Quizzone"),
+      ],
+    });
+    const w = challengeWinners(m.teams, m.hist);
+    expect(w.map((x) => x.act.title)).toEqual(["Quizzone", "Torneo di calcetto"]);
+    expect(w[1].teams.map((t) => t.id)).toEqual(["eleonora"]); // 11 > 10
+    expect(w[1].pts).toBe(11);
+    expect(w[1].classes).toEqual([C("shardana")]); // la classe migliore può essere di un'altra squadra
+    expect(w[0].teams.map((t) => t.id).sort()).toEqual(["giganti", "mamuthones"]);
   });
 });

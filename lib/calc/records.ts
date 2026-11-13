@@ -110,3 +110,33 @@ export function records(teams: Team[], acts: Activity[], teamOf: TeamOf, hist: H
   }
   return R;
 }
+
+export interface ChallengeWinner {
+  act: Activity;
+  /** squadre vincitrici (più di una se pari merito) */
+  teams: Team[];
+  pts: number;
+  /** classi con più punti nella sfida */
+  classes: string[];
+  classPts: number;
+}
+
+/** Albo delle sfide: per ogni attività con punti, chi l'ha vinta. Dalla più recente. */
+export function challengeWinners(teams: Team[], hist: HistEntry[]): ChallengeWinner[] {
+  return hist
+    .map((h) => {
+      const w = winnersOf(h, teams);
+      const byCls: Record<string, number> = {};
+      h.a.awards.forEach((x) => (byCls[x.cls] = (byCls[x.cls] || 0) + x.pts));
+      const best = Math.max(...Object.values(byCls));
+      return {
+        act: h.a,
+        teams: w,
+        pts: w.length ? h.ap[w[0].id] : 0,
+        classes: best > 0 ? Object.keys(byCls).filter((c) => byCls[c] === best).sort() : [],
+        classPts: best > 0 ? best : 0,
+      };
+    })
+    .filter((x) => x.teams.length > 0)
+    .reverse();
+}

@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { Dot, Icon, Logo, PageHead, SecH } from "@/components/ui";
 import { BADGES } from "@/lib/calc/badges";
+import { challengeWinners } from "@/lib/calc/records";
+import { classSlug } from "@/lib/teams";
 import { CONFIG } from "@/lib/config";
-import { fmt } from "@/lib/dates";
+import { fmt, fmtS } from "@/lib/dates";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -12,6 +14,7 @@ export const metadata = meta("Hall of Fame", "L'albo d'oro di Legacy Group: squa
 export default async function Hall() {
   const { m, isFinal } = await getSite();
   const winners = isFinal ? m.now.filter((r) => r.pos === 1 && r.pts > 0) : [];
+  const sfide = challengeWinners(m.teams, m.hist);
   return (
     <div className="wrap">
       <section>
@@ -41,9 +44,47 @@ export default async function Hall() {
           )}
           <div className="prize">
             <span className="eyebrow">Premio finale</span>
-            <span>Sarà comunicato successivamente.</span>
+            <span>Verrà reso noto più avanti.</span>
           </div>
         </div>
+      </section>
+      <section>
+        <SecH t="Vincitori delle sfide" sub="Tornei, quizzoni e prove: per ognuna, la squadra che ha preso più punti e la classe migliore." />
+        {sfide.length ? (
+          <ul className="champs">
+            {sfide.map((w) => (
+              <li key={w.act.id}>
+                <Logo id={w.teams[0].id} width={48} />
+                <div className="c-main">
+                  <div className="c-act">
+                    {w.act.title}
+                    {w.act.type ? <span className="badge">{w.act.type}</span> : null}
+                  </div>
+                  <div className="c-team">
+                    {w.teams.length > 1 ? "Pari merito: " : ""}
+                    {w.teams.map((t) => t.name).join(" e ")}
+                  </div>
+                  <div className="muted">
+                    {fmtS(w.act.date)} · miglior classe{" "}
+                    {w.classes.map((c, i) => (
+                      <span key={c}>
+                        {i ? ", " : ""}
+                        <Link href={`/classe/${classSlug(c)}`}>{c}</Link>
+                      </span>
+                    ))}{" "}
+                    ({w.classPts} pt)
+                  </div>
+                </div>
+                <div className="c-pts">
+                  {w.pts}
+                  <small>punti</small>
+                </div>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="empty">Qui compariranno i vincitori di ogni torneo, quizzone e sfida, appena verranno assegnati i punti.</p>
+        )}
       </section>
       <section>
         <SecH t="Record della stagione" sub="I primati di squadre e classi, aggiornati in automatico." />
