@@ -5,7 +5,7 @@
 import { isValidDate } from "../dates";
 import { TEAM_ALIASES, TEAMS } from "../teams";
 import type { Activity, Award, CalEvent, Dataset, Issue, Kind, Team } from "../types";
-import { normKey, toTable } from "./csv";
+import { normKey, toTable, type Table } from "./csv";
 
 export const REQUIRED = {
   Attivita: ["id", "data", "titolo", "tipo", "descrizione", "stato", "data_fine"],
@@ -38,8 +38,7 @@ function parseKind(s: string): Kind | null {
   return null;
 }
 
-function parseClasses(text: string, issues: Issue[]): Team[] {
-  const t = toTable(text, [...REQUIRED.Classi]);
+function parseClasses(t: Table, issues: Issue[]): Team[] {
   if (t.missing.length) throw new SheetFormatError(`Foglio "Classi": mancano le colonne ${t.missing.join(", ")}`);
   const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Classi", row, message });
   const byKey = new Map<string, Team>();
@@ -87,8 +86,7 @@ function parseClasses(text: string, issues: Issue[]): Team[] {
   return teams;
 }
 
-function parseActivities(text: string, issues: Issue[]): CalEvent[] {
-  const t = toTable(text, [...REQUIRED.Attivita]);
+function parseActivities(t: Table, issues: Issue[]): CalEvent[] {
   if (t.missing.length) throw new SheetFormatError(`Foglio "Attivita": mancano le colonne ${t.missing.join(", ")}`);
   const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Attivita", row, message });
   const out: CalEvent[] = [];
@@ -136,8 +134,7 @@ function parseActivities(text: string, issues: Issue[]): CalEvent[] {
   return out;
 }
 
-function parsePoints(text: string, events: CalEvent[], teams: Team[], issues: Issue[]): Map<string, Award[]> {
-  const t = toTable(text, [...REQUIRED.Punti]);
+function parsePoints(t: Table, events: CalEvent[], teams: Team[], issues: Issue[]): Map<string, Award[]> {
   if (t.missing.length) throw new SheetFormatError(`Foglio "Punti": mancano le colonne ${t.missing.join(", ")}`);
   const err = (row: number, message: string, level: Issue["level"] = "errore") => issues.push({ level, sheet: "Punti", row, message });
   const evById = new Map(events.map((e) => [e.id, e]));
@@ -189,15 +186,34 @@ function parsePoints(text: string, events: CalEvent[], teams: Team[], issues: Is
 }
 
 /** Valida i tre CSV e costruisce il dataset. Lancia SheetFormatError se mancano colonne. */
+export interface Tables {
+  attivita: Table;
+  punti: Table;
+  classi: Table;
+}
+
+/** Valida i tre CSV del foglio e costruisce il dataset. Lancia SheetFormatError se mancano colonne. */
 export function buildDataset(raw: RawSheets, fetchedAt = new Date().toISOString()): Dataset {
+  return buildDatasetFromTables(
+    {
+      attivita: toTable(raw.attivita, [...REQUIRED.Attivita]),
+      punti: toTable(raw.punti, [...REQUIRED.Punti]),
+      classi: toTable(raw.classi, [...REQUIRED.Classi]),
+    },
+    fetchedAt,
+  );
+}
+
+/** Stessa validazione per qualunque sorgente (foglio Google o database Supabase). */
+export function buildDatasetFromTables(t: Tables, fetchedAt = new Date().toISOString()): Dataset {
   const issues: Issue[] = [];
-  const teams = parseClasses(raw.classi, issues);
-  const events = parseActivities(raw.attivita, issues);
-  const awards = parsePoints(raw.punti, events, teams, issues);
+  const teams = parseClasses(t.classi, issues);
+  const events = parseActivities(t.attivita, issues);
+  const awards = parsePoints(t.punti, events, teams, issues);
   const activities: Activity[] = events
     .filter((e) => awards.has(e.id))
     .map((e) => ({ id: e.id, date: e.date, title: e.title, type: e.type, desc: e.desc, awards: awards.get(e.id)! }))
-    .sort((a, b) => a.date.localeCompare(b.date)); // sort stabile: a parità di data resta l'ordine del foglio
+    .sort((a, b) => a.date.localeCompare(b.date)); // sort stabile: a parità di data resta l'ordine di inserimento
   return { teams, activities, events, issues, source: "foglio", fetchedAt };
 }
 

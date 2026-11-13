@@ -47,7 +47,7 @@ export interface Issue {
   message: string;
 }
 
-export type DataSource = "foglio" | "non-configurato";
+export type DataSource = "foglio" | "supabase" | "non-configurato";
 
 export interface Dataset {
   teams: Team[];

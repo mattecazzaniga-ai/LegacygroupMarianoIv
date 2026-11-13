@@ -377,3 +377,55 @@ footer b{color:var(--text);font-weight:600}
   .recs{grid-template-columns:1fr 1fr 1fr}
 }
 @media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+/* ---------- area organizzatori ---------- */
+.admin section{padding-top:20px}
+.admin .page{margin-bottom:6px}
+.adminbar{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:10px 0 18px;margin-bottom:18px;border-bottom:1px solid var(--line)}
+.adminbar nav{display:flex;flex-wrap:wrap;gap:4px 16px}
+.adminbar nav a{color:var(--text-2);font-size:14px;font-weight:600;padding:6px 0}
+.adminbar nav a:hover{color:var(--text)}
+.adminbar form{display:flex;gap:10px;align-items:center}
+.muted{color:var(--muted);font-size:13px}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:14px}
+.btn[disabled]{opacity:.6;cursor:wait}
+.form{display:grid;gap:14px;max-width:620px;margin-top:16px}
+.form label,.addpts label{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:600;color:var(--text-2)}
+.form .two{display:grid;gap:14px;grid-template-columns:1fr 1fr}
+.form .btn{justify-self:start}
+input[type=text],input:not([type]),input[type=email],input[type=password],input[type=number],textarea{background:var(--surface);border:1px solid var(--line-2);border-radius:8px;padding:0 12px;height:44px;font-size:16px;color:var(--text);width:100%;font-family:var(--body)}
+textarea{height:auto;padding:10px 12px;resize:vertical}
+.flash{margin:14px 0;padding:10px 14px;border-radius:8px;border:1px solid rgba(95,208,143,.4);background:rgba(95,208,143,.08);font-size:14px}
+.flash.err{border-color:rgba(239,127,127,.5);background:rgba(239,127,127,.08)}
+.login{max-width:420px;margin:0 auto}
+.newact{margin:18px 0 8px}
+.newact summary{list-style:none;cursor:pointer}
+.newact summary::-webkit-details-marker{display:none}
+.newact[open] summary{margin-bottom:4px}
+.alist{list-style:none;padding:0;margin-top:22px;border-top:1px solid var(--line)}
+.alist li{border-bottom:1px solid var(--line)}
+.alist a{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 4px}
+.alist a:hover{background:var(--surface)}
+.alist b{display:block;font-weight:600}
+.alist .empty{padding:14px 0}
+.pubbar{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 8px}
+.ah{font-size:22px;margin:34px 0 6px}
+.plist{list-style:none;padding:0;margin-top:12px;border-top:1px solid var(--line)}
+.plist li{display:grid;grid-template-columns:12px 44px minmax(0,1fr) auto auto 40px;gap:10px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.plist .muted{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plist .k{color:var(--muted);font-size:12px}
+.plist .pts{font-variant-numeric:tabular-nums;text-align:right;min-width:3ch}
+.x{background:none;border:1px solid var(--line-2);border-radius:8px;color:var(--text-2);width:40px;height:40px;cursor:pointer}
+.x:hover{color:var(--down);border-color:var(--down)}
+.addpts{margin-top:18px;padding:16px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.addpts h3{font-size:16px;font-weight:600;margin-bottom:10px}
+.prow{display:grid;grid-template-columns:minmax(0,1fr) 92px 40px;grid-template-areas:"c p x" "t t .";gap:8px;margin-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.prow>label:nth-child(1){grid-area:c}.prow>label:nth-child(2){grid-area:p}.prow>label:nth-child(3){grid-area:t}.prow>:nth-child(4){grid-area:x}
+@media(min-width:620px){.prow{grid-template-columns:minmax(0,1.2fr) 110px minmax(0,1fr) 40px;grid-template-areas:"c p t x";border-bottom:0;padding-bottom:0}}
+.danger{margin:40px 0 10px;border-top:1px solid var(--line);padding-top:16px}
+.danger summary{cursor:pointer;color:var(--down);font-size:14px;font-weight:600}
+.danger-btn{background:var(--down);border-color:var(--down);color:#1a0505;margin-top:10px}
+.log{list-style:none;padding:0;margin-top:18px;border-top:1px solid var(--line)}
+.log li{display:grid;grid-template-columns:110px minmax(0,1fr);gap:12px;padding:10px 0;border-bottom:1px solid var(--line);font-size:14px;color:var(--text-2)}
+.log b{color:var(--text);font-weight:600}
+@media(max-width:480px){.form .two{grid-template-columns:1fr}.log li{grid-template-columns:1fr;gap:2px}}

@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { sum } from "@/lib/calc/core";
 import { buildModel } from "@/lib/calc/model";
 import { CONFIG } from "@/lib/config";
-import { checkSheet } from "@/lib/data/source";
+import { checkSheet, dataSource } from "@/lib/data/source";
 import { todayIn } from "@/lib/dates";
 import type { Issue } from "@/lib/types";
 
@@ -18,13 +18,13 @@ function tokenOk(given: string | undefined) {
   return a.length === b.length && timingSafeEqual(a, b);
 }
 
-function IssueList({ list }: { list: Issue[] }) {
+function IssueList({ list, db }: { list: Issue[]; db?: boolean }) {
   return (
     <>
       {list.map((i, k) => (
         <div key={k} className={`issue ${i.level}`}>
-          <b>{i.level === "errore" ? "Errore" : "Attenzione"}</b> · foglio {i.sheet}
-          {i.row ? `, riga ${i.row}` : ""}: {i.message}
+          <b>{i.level === "errore" ? "Errore" : "Attenzione"}</b> · {db ? "tabella" : "foglio"} {i.sheet}
+          {i.row ? (db ? `, n. ${i.row}` : `, riga ${i.row}`) : ""}: {i.message}
         </div>
       ))}
     </>
@@ -73,14 +73,14 @@ export default async function Controllo({ searchParams }: { searchParams: Promis
         <p className="sub">Lettura fatta adesso, senza cache. Il sito pubblico si aggiorna entro un minuto (più il ritardo di Google, fino a 5 minuti).</p>
         <div className="card">
           {!res.configured ? (
-            <p>Foglio non collegato: mancano le variabili SHEET_ATTIVITA_CSV, SHEET_PUNTI_CSV, SHEET_CLASSI_CSV su Vercel.</p>
+            <p>Nessuna sorgente collegata: mancano su Vercel le variabili di Supabase (o quelle del foglio Google).</p>
           ) : !res.ok ? (
             <div className="issue">
-              <b>Il foglio non si legge.</b> {res.error} Il sito pubblico continua a mostrare l&apos;ultima versione valida.
+              <b>I dati non si leggono ({dataSource()}).</b> {res.error} Il sito pubblico continua a mostrare l&apos;ultima versione valida.
             </div>
           ) : (
             <p>
-              Foglio letto correttamente: <b>{ds!.events.length}</b> attività in calendario, <b>{ds!.activities.length}</b> con punti, <b>{pointRows}</b>{" "}
+              Dati letti da <b>{dataSource()}</b>: <b>{ds!.events.length}</b> attività in calendario, <b>{ds!.activities.length}</b> con punti, <b>{pointRows}</b>{" "}
               assegnazioni valide. <b style={{ color: errors.length ? "#ef7a7a" : "#58d68d" }}>{errors.length} errori</b>, {warns.length} avvisi.
             </p>
           )}
@@ -93,14 +93,14 @@ export default async function Controllo({ searchParams }: { searchParams: Promis
               Errori <span className="g">({errors.length})</span>
             </h2>
             <p className="sub">Queste righe NON sono contate nei punti. Correggile nel foglio.</p>
-            {errors.length ? <IssueList list={errors} /> : <p className="empty">Nessun errore.</p>}
+            {errors.length ? <IssueList list={errors} db={ds.source === "supabase"} /> : <p className="empty">Nessun errore.</p>}
           </section>
           <section>
             <h2>
               Avvisi <span className="g">({warns.length})</span>
             </h2>
             <p className="sub">Righe contate, ma da ricontrollare.</p>
-            {warns.length ? <IssueList list={warns} /> : <p className="empty">Nessun avviso.</p>}
+            {warns.length ? <IssueList list={warns} db={ds.source === "supabase"} /> : <p className="empty">Nessun avviso.</p>}
           </section>
           <section>
             <h2>

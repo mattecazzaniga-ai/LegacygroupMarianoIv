@@ -8,7 +8,46 @@ Sito pubblico della competizione tra le 6 squadre e le 43 classi dell'Istituto M
 
 ---
 
-## 1. Il foglio Google (una volta sola)
+## 1. Inserire i punti: area organizzatori (Supabase)
+
+I punti si inseriscono da **`/admin`** (anche dal telefono), con login.
+Le attività nascono come **bozza** (non visibili). Quando le pubblichi, il sito si aggiorna **subito**.
+Ogni modifica finisce nel **registro modifiche**, con chi l'ha fatta e quando.
+
+### Configurazione (una volta sola, circa 10 minuti, gratis)
+1. Vai su [supabase.com](https://supabase.com) → **Start your project** → accedi con GitHub.
+2. **New project**: nome `legacy-group`, region **Central EU (Frankfurt)**, genera e salva la password del database → **Create new project**. Attendi 1-2 minuti.
+3. Menu a sinistra **SQL Editor** → **New query** → incolla tutto il file `supabase/schema.sql` di questo repository → **Run**. Crea le tabelle, le regole di sicurezza, il registro e le 43 classi.
+4. Nella stessa schermata esegui, con la **tua** email in minuscolo, una riga per ogni organizzatore:
+   ```sql
+   insert into public.organizzatori(email) values ('tua.email@esempio.it');
+   ```
+5. **Authentication → Sign In / Providers**: disattiva **Allow new users to sign up** (nessuno può registrarsi da solo).
+6. **Authentication → Users → Add user → Create new user**: stessa email del punto 4, una password, spunta **Auto Confirm User**.
+7. **Project Settings → Data API** (o **API Keys**): copia **Project URL** e la chiave **anon public** (non la `service_role`).
+8. Su Vercel → progetto → **Settings → Environment Variables** aggiungi:
+   - `NEXT_PUBLIC_SUPABASE_URL` = Project URL
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = chiave anon public
+   poi **Deployments → ⋯ → Redeploy**.
+9. Apri `https://IL-TUO-SITO/admin` e accedi.
+
+Note:
+- La chiave **anon** può stare nel sito: le regole del database fanno vedere al pubblico solo le attività pubblicate e fanno scrivere solo gli organizzatori in lista.
+- Il piano gratuito mette in pausa un progetto senza attività per 7 giorni; finché il sito viene visitato resta attivo. Se capita, il sito mostra l'ultima versione salvata e il progetto si riattiva dal pannello Supabase (**Restore**).
+- Classi e squadre si cambiano in Supabase → **Table Editor → classi**.
+- Se Supabase è configurato, il foglio Google non viene più letto.
+
+### Uso quotidiano
+1. `/admin` → **+ Nuova attività**: titolo, data, tipo → **Crea come bozza**.
+2. **Aggiungi punti**: scegli la classe, i punti e se sono collettivi o individuali. Con **+ Altra classe** inserisci tutta la classifica di una sfida in un colpo solo → **Salva punti**.
+3. **Pubblica sul sito**. Per correggere: elimina la riga sbagliata (✕) e reinseriscila, oppure **Rimetti in bozza**.
+4. **Segna come annullata**: l'attività resta nel calendario come annullata e i suoi punti non contano.
+
+---
+
+## 1-bis. In alternativa: il foglio Google
+
+(una volta sola)
 
 ### Crearlo
 1. Apri [sheets.google.com](https://sheets.google.com) → **File → Importa → Carica** e scegli `modello/LegacyGroup_foglio.xlsx` da questo repository.
@@ -27,7 +66,7 @@ Sito pubblico della competizione tra le 6 squadre e le 43 classi dell'Istituto M
 
 ---
 
-## 2. Come aggiornare i punti (uso quotidiano)
+## 2. Con il foglio Google: come aggiornare i punti
 
 ### Prima: crea l'attività nel foglio **Attivita**
 
