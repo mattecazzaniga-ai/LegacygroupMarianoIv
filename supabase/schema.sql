@@ -127,6 +127,25 @@ create policy registro_lettura on public.registro for select to authenticated us
 
 
 -- ---------------------------------------------------------------- organizzatori
--- Aggiungi qui l'email di ogni organizzatore (in minuscolo), poi crea il suo utente in
--- Authentication → Users → Add user, con la stessa email.
--- insert into public.organizzatori(email) values ('nome.cognome@esempio.it') on conflict do nothing;
+-- Ogni utente creato dal pannello Supabase (Authentication → Users → Add user) diventa organizzatore.
+-- Le iscrizioni libere vanno disattivate (Authentication → Sign In / Providers → Allow new users to sign up: OFF),
+-- così gli utenti li crea solo chi gestisce il progetto.
+create or replace function public.nuovo_organizzatore() returns trigger
+language plpgsql security definer set search_path = public as $$
+begin
+  if new.email is not null then
+    insert into public.organizzatori(email) values (lower(new.email)) on conflict do nothing;
+  end if;
+  return new;
+end $$;
+
+do $$
+begin
+  if to_regclass('auth.users') is not null then
+    execute 'drop trigger if exists organizzatore_da_utente on auth.users';
+    execute 'create trigger organizzatore_da_utente after insert on auth.users for each row execute function public.nuovo_organizzatore()';
+    insert into public.organizzatori(email) select lower(email) from auth.users where email is not null on conflict do nothing;
+  end if;
+end $$;
+
+-- Per togliere un organizzatore: delete from public.organizzatori where email = '...';

@@ -18,12 +18,9 @@ Ogni modifica finisce nel **registro modifiche**, con chi l'ha fatta e quando.
 1. Vai su [supabase.com](https://supabase.com) → **Start your project** → accedi con GitHub.
 2. **New project**: nome `legacy-group`, region **Central EU (Frankfurt)**, genera e salva la password del database → **Create new project**. Attendi 1-2 minuti.
 3. Menu a sinistra **SQL Editor** → **New query** → incolla tutto il file `supabase/schema.sql` di questo repository → **Run**. Crea le tabelle, le regole di sicurezza, il registro e le 43 classi.
-4. Nella stessa schermata esegui, con la **tua** email in minuscolo, una riga per ogni organizzatore:
-   ```sql
-   insert into public.organizzatori(email) values ('tua.email@esempio.it');
-   ```
+4. (Automatico) Ogni utente creato al punto 6 diventa organizzatore. Per toglierne uno: `delete from public.organizzatori where email = '...';`
 5. **Authentication → Sign In / Providers**: disattiva **Allow new users to sign up** (nessuno può registrarsi da solo).
-6. **Authentication → Users → Add user → Create new user**: stessa email del punto 4, una password, spunta **Auto Confirm User**.
+6. **Authentication → Users → Add user → Create new user**: email e password dell'organizzatore, spunta **Auto Confirm User**.
 7. **Project Settings → Data API** (o **API Keys**): copia **Project URL** e la chiave **anon public** (non la `service_role`).
 8. Su Vercel → progetto → **Settings → Environment Variables** aggiungi:
    - `NEXT_PUBLIC_SUPABASE_URL` = Project URL
