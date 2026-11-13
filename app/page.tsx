@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { Board, CountdownBlock, MomentsList, Upcoming, WeekPodium } from "@/components/blocks";
+import { Board, CountdownBlock, dateLabels, leaderIndex, MomentsList, Podium, teamSeries, Upcoming, WeekPodium } from "@/components/blocks";
+import LineChart from "@/components/LineChart";
 import { Logo, SecH } from "@/components/ui";
 import { getSite } from "@/lib/site";
 
@@ -52,8 +53,15 @@ export default async function Home() {
                 : "Si parte da zero: tutte le squadre a pari punti. La classifica si aggiorna da sola a ogni nuovo punteggio."
             }
           />
+          <Podium m={m} />
           <Board m={m} detail />
         </section>
+        {m.hist.length ? (
+          <section>
+            <SecH t="La corsa" sub="Punti accumulati attività dopo attività. Tocca una squadra per seguirla." more={{ href: "/statistiche", label: "Statistiche" }} />
+            <LineChart mode="focus" focus={leaderIndex(m)} label="Punti cumulati per squadra" labels={dateLabels(m)} series={teamSeries(m)} />
+          </section>
+        ) : null}
         <section className="g2">
           <div>
             <SecH t="Podio della settimana" sub="Chi ha fatto più punti negli ultimi 7 giorni." />

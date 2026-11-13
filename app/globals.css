@@ -116,6 +116,18 @@ h3.h{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
 .var{font-weight:600;font-size:12px;font-variant-numeric:tabular-nums}
 .up{color:var(--up)}.down{color:var(--down)}.same{color:var(--muted)}
 
+/* podio */
+.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;margin-bottom:24px}
+.pod{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;padding:16px 6px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);position:relative}
+.pod::before{content:"";position:absolute;top:-1px;left:20%;right:20%;height:2px;border-radius:0 0 2px 2px;background:var(--m)}
+.pod.m1{--m:var(--gold);padding-top:22px;padding-bottom:20px}
+.pod.m2{--m:var(--silver)} .pod.m3{--m:var(--bronze)}
+.pod img{width:56px;height:auto;margin-bottom:10px}
+.pod.m1 img{width:78px}
+.pod .rk{font:600 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--m)}
+.pod .nm{font-size:15px;margin-top:4px;letter-spacing:.01em;hyphens:auto}
+.pod .pt{text-align:center;font-size:28px;margin-top:8px}
+
 /* settimana */
 .wk{list-style:none;padding:0;display:grid;gap:8px}
 .wk .w{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
@@ -343,6 +355,7 @@ footer b{color:var(--text);font-weight:600}
   .filters{grid-template-columns:repeat(5,1fr)}
   .row{grid-template-columns:44px 56px minmax(0,1fr) auto;gap:18px;padding:14px 10px}
   .row img{width:56px}
+  .pod img{width:84px}.pod.m1 img{width:112px}.pod .nm{font-size:22px}.pod .pt{font-size:36px}
   .pos{font-size:36px}
   .nm{font-size:26px}
   .pt{font-size:40px}

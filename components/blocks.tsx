@@ -8,6 +8,7 @@ import { fmt, fmtS } from "@/lib/dates";
 import { chartColor } from "@/lib/teams";
 import type { CalEvent, Team } from "@/lib/types";
 import Countdown from "./Countdown";
+import type { Series } from "./LineChart";
 import { EventCard, Icon, Logo, ord } from "./ui";
 
 function Var({ m, id, pos }: { m: Model; id: string; pos: number }) {
@@ -54,6 +55,24 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
         );
       })}
     </ol>
+  );
+}
+
+/** Podio: il primo posto è al centro e più alto. Compare quando c'è almeno un punto. */
+export function Podium({ m }: { m: Model }) {
+  if (!m.started || m.now[0].pts <= 0) return null;
+  const t = [m.now[1], m.now[0], m.now[2]];
+  return (
+    <div className="podium" role="group" aria-label="Podio">
+      {t.map((r) => (
+        <Link key={r.team.id} className={`pod m${r.pos <= 3 ? r.pos : 3}`} href={`/squadra/${r.team.id}`}>
+          <Logo id={r.team.id} width={r === m.now[0] ? 112 : 84} />
+          <div className="rk">{r.pos}° posto</div>
+          <div className="nm">{r.team.name}</div>
+          <div className="pt">{r.pts}</div>
+        </Link>
+      ))}
+    </div>
   );
 }
 
@@ -182,4 +201,6 @@ export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
 
 export const dateLabels = (m: Model) => ["Inizio", ...m.acts.map((a) => fmtS(a.date))];
 /** Indice della squadra in testa (per mettere in evidenza la sua linea). */
+export const teamSeries = (m: Model): Series[] =>
+  m.teams.map((g) => ({ name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }));
 export const leaderIndex = (m: Model) => Math.max(0, m.teams.findIndex((t) => t.id === m.now[0].team.id));
