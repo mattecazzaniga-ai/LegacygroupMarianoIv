@@ -34,3 +34,11 @@ export function calEvents(events: CalEvent[], acts: Activity[]): CalItem[] {
 
 /** Eventi che toccano il giorno `day` (anche su più giorni). */
 export const onDay = (ev: CalItem[], day: string) => ev.filter((e) => e.date <= day && (e.end || e.date) >= day);
+
+/** Toni per distinguere le tipologie di appuntamento (stessa tipologia = stesso colore in tutto il sito). */
+const TONES = ["#8fb3e0", "#7fc8a9", "#e0a46f", "#c3a0e6", "#e58f9e", "#9fc6d6"];
+export const typeKey = (t: string) => t.trim().toLowerCase();
+export function typeTones(events: { type: string }[]): Record<string, string> {
+  const types = [...new Set(events.map((e) => typeKey(e.type)).filter(Boolean))].sort();
+  return Object.fromEntries(types.map((t, i) => [t, TONES[i % TONES.length]]));
+}

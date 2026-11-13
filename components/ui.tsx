@@ -95,27 +95,68 @@ export function ActCard({ a, teamOf, filt }: { a: Activity; teamOf: TeamOf; filt
   );
 }
 
-export function EventCard({ e, today, teamOf }: { e: CalItem; today: string; teamOf: TeamOf }) {
+export function EventCard({ e, today, teamOf, tone }: { e: CalItem; today: string; teamOf: TeamOf; tone?: string }) {
   const st = statusOf(e, today);
+  const a = e.act;
+  // risultato per squadra: punti presi da ogni squadra in questa attività
+  const byTeam = new Map<string, { t: Team; pts: number }>();
+  a?.awards.forEach((w) => {
+    const t = teamOf[w.cls];
+    if (!t) return;
+    const v = byTeam.get(t.id) ?? { t, pts: 0 };
+    byTeam.set(t.id, { t, pts: v.pts + w.pts });
+  });
+  const ranking = [...byTeam.values()].filter((x) => x.pts !== 0).sort((x, y) => y.pts - x.pts);
+  const winner = e.winner ? Object.values(teamOf).find((t) => t.id === e.winner) : undefined;
   return (
-    <article className="act">
-      <h3>
-        {e.title} <span className={`st ${st}`}>{STATUS_LABEL[st]}</span> {e.type ? <span className="badge">{e.type}</span> : null}
-      </h3>
+    <article className={"act ev" + (tone ? " typed" : "")} style={tone ? ({ "--tone": tone } as CSSProperties) : undefined}>
+      <div className="ev-top">
+        <span className={`st ${st}`}>{STATUS_LABEL[st]}</span>
+        {e.type ? <span className="tp">{e.type}</span> : null}
+      </div>
+      <h3>{e.title}</h3>
       <div className="d">
         {fmt(e.date)}
         {e.end && e.end !== e.date ? " → " + fmt(e.end) : ""}
       </div>
       {e.desc ? <p>{e.desc}</p> : null}
-      {e.act ? (
-        <div className="chips">
-          {e.act.awards.map((w, i) => (
-            <AwardChip key={i} w={w} teamOf={teamOf} />
-          ))}
-        </div>
-      ) : st === "conclusa" ? (
+      {winner && st !== "annullata" ? (
+        <p className="ev-win">
+          Vince{" "}
+          <Link href={`/squadra/${winner.id}`}>
+            <Dot team={winner} />
+            {winner.name}
+          </Link>
+        </p>
+      ) : null}
+      {a && ranking.length ? (
+        <>
+          <ol className="ev-rank" aria-label="Punti per squadra">
+            {ranking.map(({ t, pts }) => (
+              <li key={t.id}>
+                <Link href={`/squadra/${t.id}`}>
+                  <Dot team={t} />
+                  {t.name}
+                  <b>
+                    {pts > 0 ? "+" : ""}
+                    {pts}
+                  </b>
+                </Link>
+              </li>
+            ))}
+          </ol>
+          <details className="ev-cls">
+            <summary>Punti per classe ({a.awards.length})</summary>
+            <div className="chips">
+              {a.awards.map((w, i) => (
+                <AwardChip key={i} w={w} teamOf={teamOf} />
+              ))}
+            </div>
+          </details>
+        </>
+      ) : st === "conclusa" && !winner ? (
         <p className="note" style={{ margin: "6px 0 0" }}>
-          Punti in aggiornamento.
+          Risultati in aggiornamento.
         </p>
       ) : null}
     </article>

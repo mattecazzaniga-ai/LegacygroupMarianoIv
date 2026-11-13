@@ -43,6 +43,8 @@ Note:
 2. **Aggiungi punti**: scegli la classe, i punti e se sono collettivi o individuali. Con **+ Altra classe** inserisci tutta la classifica di una sfida in un colpo solo → **Salva punti**.
 3. **Pubblica sul sito**. Per correggere: elimina la riga sbagliata (✕) e reinseriscila, oppure **Rimetti in bozza**.
 4. **Segna come annullata**: l'attività resta nel calendario come annullata e i suoi punti non contano.
+5. **Squadra vincitrice**: scegline una solo per le sfide che prevedono un vincitore (tornei, quizzoni…). Lasciala su "Nessuna" per i punti di collaborazione o aiuto. La vincitrice compare in Hall of Fame, calendario, scontri diretti e nel riconoscimento "Dominatore"; non cambia la classifica.
+6. **A fine stagione**: aggiungi la vincitrice all'albo d'oro in `lib/config.ts` (lista `ALBO`), così resta anche nelle edizioni successive.
 
 ---
 
@@ -165,7 +167,7 @@ python3 scripts/modello.py  # rigenera il foglio modello .xlsx
 ```
 
 Struttura:
-- `lib/calc/` – tutti i calcoli come funzioni pure: classifica e pari merito, spareggio, variazioni, storico, settimana, record, badge, Legacy Moment, calendario.
+- `lib/calc/` – tutti i calcoli come funzioni pure: classifica e pari merito, spareggio, variazioni (rispetto a prima dell'ultima giornata), storico, settimana, record, i 5 riconoscimenti (senza soglie di punti fisse), statistiche per punteggio variabile (media sulle attività con punti, quota media per sfida, punti per tipologia), scontri diretti, Legacy Moment, calendario.
 - `lib/data/` – lettura e validazione del foglio.
 - `app/` – pagine (Next.js App Router), rigenerate ogni 60 s.
 - `components/` – interfaccia; grafici, statistiche, calendario, rivalità, menu e countdown sono le uniche parti eseguite nel browser.

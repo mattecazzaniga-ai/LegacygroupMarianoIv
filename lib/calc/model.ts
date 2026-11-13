@@ -19,7 +19,7 @@ export function buildModel({ teams, acts, tiebreak, today }: ModelInput) {
   const prevPos = previousPositions(teams, acts, teamOf, tiebreak);
   const hist = history(teams, acts, teamOf, tiebreak);
   const week = weekRows(teams, acts, teamOf, tiebreak, today);
-  const badgeInput: BadgeInput = { acts, hist, now, week, teams };
+  const badgeInput: BadgeInput = { acts, hist, now, week, teams, prevPos };
   return {
     teams,
     acts,

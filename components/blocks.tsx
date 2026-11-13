@@ -1,7 +1,7 @@
 /** Blocchi delle pagine (server). */
 import Link from "next/link";
 import type { Model } from "@/lib/calc/model";
-import { calEvents, statusOf } from "@/lib/calc/calendar";
+import { calEvents, statusOf, typeKey, typeTones } from "@/lib/calc/calendar";
 import { variation } from "@/lib/calc/core";
 import { CONFIG } from "@/lib/config";
 import { fmt, fmtS } from "@/lib/dates";
@@ -30,7 +30,7 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
           <li key={r.team.id}>
             <Link className={"row" + cls} href={`/squadra/${r.team.id}`}>
               <div className="pos">
-                <span aria-hidden="true">{m.started ? r.pos : "–"}</span>
+                <span aria-hidden="true">{m.started ? r.pos : ""}</span>
                 {m.started ? <span className="sr-only">{ord(r.pos)} posto:</span> : null}
               </div>
               <Logo id={r.team.id} width={56} />
@@ -119,7 +119,7 @@ export function CountdownBlock({ m, startMs, endMs, nowMs, isFinal }: { m: Model
 const MEDALS = ["Oro", "Argento", "Bronzo"];
 export function WeekPodium({ m }: { m: Model }) {
   const top = m.week.filter((r) => r.pts > 0);
-  if (!top.length) return <p className="empty">Nessun punto negli ultimi 7 giorni: il podio si forma alla prossima attività.</p>;
+  if (!top.length) return null;
   const show = top.filter((r) => r.pos <= 3);
   return (
     <>
@@ -161,42 +161,41 @@ export function MomentsList({ m, n }: { m: Model; n?: number }) {
         </li>
       ))}
     </ol>
-  ) : (
-    <p className="empty">Sorpassi, record e traguardi compariranno qui in automatico.</p>
-  );
+  ) : null;
 }
 
 export function BadgesRow({ m, team }: { m: Model; team: Team }) {
   const b = m.badgesOf(team);
   return b.length ? (
-    <div className="own" role="group" aria-label="Badge della squadra">
+    <div className="own" role="group" aria-label="Riconoscimenti della squadra">
       {b.map((x) => (
         <span className="chip" key={x.id} title={x.rule}>
           <Icon n={x.ic} size={14} /> {x.name}
         </span>
       ))}
     </div>
-  ) : (
-    <p className="empty">Nessun badge per ora.</p>
-  );
+  ) : null;
 }
 
-export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
-  const list = calEvents(events, m.acts)
+/** Prossimi appuntamenti (in corso o programmati), i primi `n`. */
+export const upcoming = (m: Model, events: CalEvent[], n = 3) =>
+  calEvents(events, m.acts)
     .filter((e) => {
       const s = statusOf(e, m.today);
       return s === "programmata" || s === "corso";
     })
-    .slice(0, 3);
+    .slice(0, n);
+
+export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
+  const list = upcoming(m, events);
+  const tones = typeTones(events);
   return list.length ? (
     <div className="list">
       {list.map((e) => (
-        <EventCard key={e.id} e={e} today={m.today} teamOf={m.teamOf} />
+        <EventCard key={e.id} e={e} today={m.today} teamOf={m.teamOf} tone={tones[typeKey(e.type)]} />
       ))}
     </div>
-  ) : (
-    <p className="empty">Le prossime attività verranno annunciate qui.</p>
-  );
+  ) : null;
 }
 
 export const dateLabels = (m: Model) => ["Inizio", ...m.acts.map((a) => fmtS(a.date))];

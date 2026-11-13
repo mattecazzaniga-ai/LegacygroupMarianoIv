@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo, PageHead } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
+import { chartColor } from "@/lib/teams";
 
 export const revalidate = 60;
 export const metadata = meta(
@@ -21,7 +22,7 @@ export default async function Squadre() {
             const r = m.now.find((x) => x.team.id === g.id)!;
             return (
               <li key={g.id}>
-                <Link className="tcard" href={`/squadra/${g.id}`}>
+                <Link className="tcard" href={`/squadra/${g.id}`} style={{ ["--tc" as string]: chartColor(g) }}>
                   <Logo id={g.id} width={72} />
                   <div>
                     <div className="nm">{g.name}</div>

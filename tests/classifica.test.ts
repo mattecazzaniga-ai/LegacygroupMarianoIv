@@ -88,6 +88,17 @@ describe("variazioni ▲▼", () => {
     expect(variation(prev, "eleonora", pos("eleonora"))).toBe(-2); // 1° → 3°
   });
 
+  it("più attività nello stesso giorno contano come una sola giornata", () => {
+    const acts = [
+      act("2026-10-01", [[C("eleonora"), 10]]),
+      act("2026-10-08", [[C("shardana"), 4]]),
+      act("2026-10-08", [[C("shardana"), 8]]),
+    ];
+    const prev = previousPositions(teams, acts, teamOf, "ultima")!;
+    expect(prev.shardana).toBe(2); // prima della giornata dell'8 ottobre, non prima dell'ultima attività
+    expect(previousPositions(teams, acts.slice(1), teamOf, "ultima")).toBeNull(); // una sola giornata
+  });
+
   it("lo storico ricostruisce la classifica dopo ogni attività", () => {
     const acts = [act("2026-10-01", [[C("eleonora"), 3]]), act("2026-10-02", [[C("eleonora"), 4], [C("shardana"), 9]])];
     const h = history(teams, acts, teamOf, "ultima");

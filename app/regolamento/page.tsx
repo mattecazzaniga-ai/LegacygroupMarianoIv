@@ -78,6 +78,10 @@ export default function Regolamento() {
                 <li>altre attività e sfide che verranno proposte durante l&apos;anno.</li>
               </ul>
               <p>
+                Alcune sfide, come tornei e quizzoni, prevedono una <b>squadra vincitrice</b>, indicata dagli organizzatori. Altre assegnano punti senza un
+                vincitore, ad esempio per la collaborazione o l&apos;aiuto dato.
+              </p>
+              <p>
                 Date e appuntamenti sono pubblicati nel <Link href="/calendario">calendario</Link>.
               </p>
             </div>
@@ -92,7 +96,9 @@ export default function Regolamento() {
                 base al tipo di prova, alla sua difficoltà, agli obiettivi e ai criteri di valutazione. Per questo i punti possono cambiare anche
                 molto da una sfida all&apos;altra.
               </p>
-              <p>I criteri e i punti in palio vengono definiti e comunicati per ciascuna attività.</p>
+              <p>
+                <b>I criteri e i punti in palio vengono comunicati per ciascuna sfida</b>, prima o in occasione della sfida stessa.
+              </p>
               <p>
                 I punti vanno sempre alle <b>classi</b> e da lì alla loro squadra. Possono essere <b>collettivi</b>, assegnati a tutta la classe, o{" "}
                 <b>individuali</b>, ottenuti da uno studente e attribuiti alla sua classe. Sul sito compaiono solo le sigle delle classi, mai i
@@ -107,10 +113,11 @@ export default function Regolamento() {
             <div>
               <h2>Riconoscimenti e meriti</h2>
               <p>
-                I punti non arrivano solo vincendo una gara. Una classe o una squadra può riceverli anche per aver dato un aiuto importante, per
-                aver svolto un lavoro particolarmente positivo o per aver contribuito in modo concreto alla riuscita di un&apos;iniziativa.
+                I punti non arrivano solo vincendo una gara. Una classe o una squadra può riceverli anche per <b>collaborazione</b>, <b>aiuto</b>,{" "}
+                <b>disponibilità</b> e <b>ottimo lavoro</b>: per aver dato una mano concreta, per aver svolto un lavoro particolarmente positivo o per
+                aver contribuito alla riuscita di un&apos;iniziativa.
               </p>
-              <p>Questi riconoscimenti sono valutati dagli organizzatori.</p>
+              <p>Questi punti sono valutati dagli organizzatori e, come tutti gli altri, confluiscono nella classifica generale.</p>
             </div>
           </article>
 
@@ -126,7 +133,10 @@ export default function Regolamento() {
               <p>
                 Le squadre con gli stessi punti occupano la stessa posizione. Per l&apos;ordine di visualizzazione a pari punti {TIEBREAK}.
               </p>
-              <p>Statistiche, record e badge sono calcolati in automatico dai punti: servono a raccontare la stagione e non cambiano la classifica.</p>
+              <p>
+                Statistiche, record e i cinque riconoscimenti della <Link href="/hall-of-fame">Hall of Fame</Link> sono calcolati in automatico: servono a
+                raccontare la stagione e non cambiano la classifica.
+              </p>
             </div>
           </article>
 

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Board, CountdownBlock, dateLabels, leaderIndex, MomentsList, Podium, teamSeries, Upcoming, WeekPodium } from "@/components/blocks";
+import { Board, CountdownBlock, dateLabels, leaderIndex, MomentsList, Podium, teamSeries, upcoming, Upcoming, WeekPodium } from "@/components/blocks";
 import LineChart from "@/components/LineChart";
 import { Logo, SecH } from "@/components/ui";
 import { getSite } from "@/lib/site";
@@ -9,6 +9,9 @@ export const revalidate = 60;
 
 export default async function Home() {
   const { m, ds, startMs, endMs, nowMs, isFinal } = await getSite();
+  // podio e Legacy Moment compaiono solo quando ci sono dati da raccontare
+  const hasWeek = m.week.some((r) => r.pts > 0);
+  const hasMoments = m.moments.length > 0;
   return (
     <>
       <header className="hero">
@@ -49,7 +52,7 @@ export default async function Home() {
             t="Classifica generale"
             sub={
               m.started
-                ? `Dopo ${m.acts.length} attività. A pari punti, stessa posizione; ▲▼ confronta con la classifica prima dell'ultima attività.`
+                ? `Aggiornata dopo ${m.acts.length} ${m.acts.length === 1 ? "attività" : "attività"}. A pari punti, stessa posizione.${m.prevPos ? " ▲▼ rispetto a prima dell'ultima giornata di sfide." : ""}`
                 : "Si parte da zero: tutte le squadre a pari punti. La classifica si aggiorna da sola a ogni nuovo punteggio."
             }
           />
@@ -62,20 +65,28 @@ export default async function Home() {
             <LineChart mode="focus" focus={leaderIndex(m)} label="Punti cumulati per squadra" labels={dateLabels(m)} series={teamSeries(m)} />
           </section>
         ) : null}
-        <section className="g2">
-          <div>
-            <SecH t="Podio della settimana" sub="Chi ha fatto più punti negli ultimi 7 giorni." />
-            <WeekPodium m={m} />
-          </div>
-          <div>
-            <SecH t="Legacy Moment" sub="Sorpassi, record e traguardi, rilevati in automatico." />
-            <MomentsList m={m} n={4} />
-          </div>
-        </section>
-        <section>
-          <SecH t="Prossimi appuntamenti" more={{ href: "/calendario", label: "Calendario" }} />
-          <Upcoming m={m} events={ds.events} />
-        </section>
+        {hasWeek || hasMoments ? (
+          <section className={hasWeek && hasMoments ? "g2" : undefined}>
+            {hasWeek ? (
+              <div>
+                <SecH t="Podio della settimana" sub="Chi ha fatto più punti negli ultimi 7 giorni." />
+                <WeekPodium m={m} />
+              </div>
+            ) : null}
+            {hasMoments ? (
+              <div>
+                <SecH t="Legacy Moment" sub="Sorpassi, record e traguardi della stagione." />
+                <MomentsList m={m} n={4} />
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+        {upcoming(m, ds.events).length ? (
+          <section>
+            <SecH t="Prossimi appuntamenti" more={{ href: "/calendario", label: "Calendario" }} />
+            <Upcoming m={m} events={ds.events} />
+          </section>
+        ) : null}
       </div>
     </>
   );

@@ -1,7 +1,7 @@
 /** Hall of Fame: record automatici. Solo squadre e classi, mai nomi di studenti. */
-import { fmtS, mondayOf } from "../dates";
+import { fmtS } from "../dates";
 import type { Activity, Team } from "../types";
-import { actPts, allClasses, classPts, teamActs, teamPts, winnersOf, type HistEntry, type TeamOf } from "./core";
+import { allClasses, classPts, winnersOf, type HistEntry, type TeamOf } from "./core";
 
 export interface RecordItem {
   id: string;
@@ -27,46 +27,15 @@ export function records(teams: Team[], acts: Activity[], teamOf: TeamOf, hist: H
   if (t1 && t1.v > 0)
     R.push({ id: "squadra-attivita", k: "Più punti in una attività (squadra)", v: t1.v, n: t1.g.name, s: t1.h.a.title + " · " + fmtS(t1.h.a.date), team: t1.g });
 
-  const ca = hist.flatMap((h) => {
-    const m: Record<string, number> = {};
-    h.a.awards.forEach((w) => (m[w.cls] = (m[w.cls] || 0) + w.pts));
-    return Object.entries(m).map(([c, v]) => ({ h, c, v }));
-  });
-  const c1 = best(ca, (x) => x.v);
-  if (c1 && c1.v > 0 && teamOf[c1.c])
-    R.push({ id: "classe-attivita", k: "Più punti in una attività (classe)", v: c1.v, n: c1.c, s: teamOf[c1.c].name + " · " + c1.h.a.title, team: teamOf[c1.c] });
 
   const c2 = best(CLS.map((c) => ({ c, v: classPts(c, acts) })), (x) => x.v);
   if (c2 && c2.v > 0) R.push({ id: "classe-top", k: "Classe con più punti", v: c2.v, n: c2.c, s: teamOf[c2.c].name, team: teamOf[c2.c] });
 
-  const c3 = best(CLS.map((c) => ({ c, v: classPts(c, acts, "individuale") })), (x) => x.v);
-  if (c3 && c3.v > 0)
-    R.push({ id: "classe-individuali", k: "Classe con più punti individuali", v: c3.v, n: c3.c, s: teamOf[c3.c].name, team: teamOf[c3.c] });
 
   const w1 = best(teams.map((g) => ({ g, v: hist.filter((h) => winnersOf(h, teams).some((t) => t.id === g.id)).length })), (x) => x.v);
-  if (w1 && w1.v > 0) R.push({ id: "vittorie", k: "Più attività vinte", v: w1.v, n: w1.g.name, s: "attività con più punti della giornata", team: w1.g });
+  if (w1 && w1.v > 0) R.push({ id: "vittorie", k: "Più sfide vinte", v: w1.v, n: w1.g.name, s: "sfide con una squadra vincitrice", team: w1.g });
 
-  const a1 = best(
-    teams.filter((g) => teamActs(g, acts, teamOf) > 0).map((g) => ({ g, v: Math.round((teamPts(g, acts, teamOf) / teamActs(g, acts, teamOf)) * 10) / 10 })),
-    (x) => x.v,
-  );
-  if (a1) R.push({ id: "media", k: "Miglior media per attività", v: a1.v, n: a1.g.name, s: "punti per attività a cui ha partecipato", team: a1.g });
 
-  // miglior settimana (lunedì–domenica)
-  const wk: Record<string, number> = {};
-  acts.forEach((a) => {
-    const key = mondayOf(a.date);
-    teams.forEach((g) => {
-      const k2 = key + "|" + g.id;
-      wk[k2] = (wk[k2] || 0) + actPts(a, g, teamOf);
-    });
-  });
-  const b = best(Object.entries(wk).map(([k, v]) => ({ k, v })), (x) => x.v);
-  if (b && b.v > 0) {
-    const [day, gid] = b.k.split("|");
-    const g = teams.find((t) => t.id === gid)!;
-    R.push({ id: "settimana", k: "Miglior settimana", v: b.v, n: g.name, s: "settimana del " + fmtS(day), team: g });
-  }
 
   // serie più lunga in testa (anche a pari merito al primo posto)
   let bestRun: { g: Team; v: number } | null = null;
@@ -119,11 +88,9 @@ export interface ChallengeWinner {
   /** classi con più punti nella sfida */
   classes: string[];
   classPts: number;
-  /** vincitore scelto dagli organizzatori */
-  manual: boolean;
 }
 
-/** Albo delle sfide: per ogni attività con punti, chi l'ha vinta. Dalla più recente. */
+/** Albo delle sfide: le sfide con una squadra vincitrice indicata dagli organizzatori. Dalla più recente. */
 export function challengeWinners(teams: Team[], hist: HistEntry[]): ChallengeWinner[] {
   return hist
     .map((h) => {
@@ -137,7 +104,6 @@ export function challengeWinners(teams: Team[], hist: HistEntry[]): ChallengeWin
         pts: w.length ? h.ap[w[0].id] : 0,
         classes: best > 0 ? Object.keys(byCls).filter((c) => byCls[c] === best).sort() : [],
         classPts: best > 0 ? best : 0,
-        manual: !!h.a.winner && w.length === 1 && w[0].id === h.a.winner,
       };
     })
     .filter((x) => x.teams.length > 0)

@@ -1,13 +1,38 @@
 "use client";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { teamActs } from "@/lib/calc/core";
+import { teamActs, variation } from "@/lib/calc/core";
 import { buildModel } from "@/lib/calc/model";
+import { headToHead } from "@/lib/calc/stats";
 import { rangePts } from "@/lib/calc/week";
 import { fmtS } from "@/lib/dates";
 import type { Activity, Team, Tiebreak } from "@/lib/types";
 import LineChart from "./LineChart";
-import { Logo } from "./ui";
+import { Logo, Variation } from "./ui";
+
+type Row = [label: string, a: number | string, b: number | string, hi: 1 | -1 | 0, aNode?: React.ReactNode, bNode?: React.ReactNode];
+
+function Cmp({ rows }: { rows: Row[] }) {
+  const better = (x: number | string, y: number | string, hi: number) =>
+    hi !== 0 && typeof x === "number" && typeof y === "number" && hi * x > hi * y;
+  return (
+    <dl className="cmp">
+      {rows.map(([l, x, y, hi, xn, yn]) => (
+        <div key={l}>
+          <dd className="a">
+            <b className={better(x, y, hi) ? "win" : ""}>{xn ?? x}</b>
+          </dd>
+          <dt>{l}</dt>
+          <dd>
+            <b className={better(y, x, hi) ? "win" : ""}>{yn ?? y}</b>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  );
+}
+
+const pts = (n: number) => `${n} ${Math.abs(n) === 1 ? "punto" : "punti"}`;
 
 export default function RivalryView({ teams, acts, today, tiebreak }: { teams: Team[]; acts: Activity[]; today: string; tiebreak: Tiebreak }) {
   const m = useMemo(() => buildModel({ teams, acts, tiebreak, today }), [teams, acts, tiebreak, today]);
@@ -35,20 +60,22 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
   if (a === b) body = <p className="empty">Scegli due squadre diverse.</p>;
   else {
     const gap = ra.pts - rb.pts;
-    const winA = m.hist.filter((h) => h.ap[a] > h.ap[b]).length,
-      winB = m.hist.filter((h) => h.ap[b] > h.ap[a]).length,
-      eq = m.hist.filter((h) => h.ap[a] === h.ap[b] && h.ap[a] > 0).length;
-    const nA = teamActs(A, acts, m.teamOf),
-      nB = teamActs(B, acts, m.teamOf);
-    const rows: [string, number | string, number | string, number][] = [
-      ["Punti", ra.pts, rb.pts, 1],
-      ["Posizione", m.started ? ra.pos : "–", m.started ? rb.pos : "–", -1],
-      ["Ultimi 7 giorni", rangePts(A, acts, m.teamOf, m.windows.W0), rangePts(B, acts, m.teamOf, m.windows.W0), 1],
-      ["Attività con punti", nA, nB, 1],
-      ["Media per attività", nA ? Math.round((ra.pts / nA) * 10) / 10 : 0, nB ? Math.round((rb.pts / nB) * 10) / 10 : 0, 1],
-      ["Sfide vinte a confronto", winA, winB, 1],
-    ];
-    const better = (x: number | string, y: number | string, hi: number) => typeof x === "number" && typeof y === "number" && hi * x > hi * y;
+    const { W0, W1 } = m.windows;
+    const wA = rangePts(A, acts, m.teamOf, W0),
+      wB = rangePts(B, acts, m.teamOf, W0);
+    const pA = rangePts(A, acts, m.teamOf, W1, W0),
+      pB = rangePts(B, acts, m.teamOf, W1, W0);
+    const recent = acts.filter((x) => x.date >= W0);
+    const nwA = teamActs(A, recent, m.teamOf),
+      nwB = teamActs(B, recent, m.teamOf);
+    const vA = variation(m.prevPos, a, ra.pos),
+      vB = variation(m.prevPos, b, rb.pos);
+    const matches = headToHead(A, B, m.hist, teams);
+    const winA = matches.filter((x) => x.res === "A").length,
+      winB = matches.filter((x) => x.res === "B").length,
+      draws = matches.length - winA - winB;
+    const signed = (n: number) => (n > 0 ? "+" + n : String(n));
+
     body = (
       <>
         <div className="vs">
@@ -64,47 +91,101 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
             <div className="nm">{B.name}</div>
           </Link>
         </div>
-        <div>
-          <dl className="cmp">
-            {rows.map(([l, x, y, hi]) => (
-              <div key={l}>
-                <dd className="a">
-                  <b className={better(x, y, hi) ? "win" : ""}>{x}</b>
-                </dd>
-                <dt>{l}</dt>
-                <dd>
-                  <b className={better(y, x, hi) ? "win" : ""}>{y}</b>
-                </dd>
-              </div>
-            ))}
-          </dl>
-          <p className="note" style={{ textAlign: "center", marginTop: 16 }}>
-            {m.started && ra.pts + rb.pts !== 0 ? (
-              <>
+
+        {!m.started ? (
+          <p className="empty" style={{ textAlign: "center" }}>
+            Nessun punto assegnato: il confronto parte dalla prima attività.
+          </p>
+        ) : (
+          <>
+            <div className="rv">
+              <h2>Confronto generale</h2>
+              <p className="lead">
                 {gap === 0 ? (
                   "Parità di punti."
                 ) : (
                   <>
-                    {(gap > 0 ? A : B).name} è avanti di <b>{Math.abs(gap)}</b> {Math.abs(gap) === 1 ? "punto" : "punti"}.
+                    <b>{(gap > 0 ? A : B).name}</b> è avanti di <b>{pts(Math.abs(gap))}</b>.
                   </>
                 )}
-                {eq ? ` ${eq} attività chiuse alla pari.` : ""}
-              </>
-            ) : (
-              "Nessun punto assegnato: la rivalità parte dalla prima attività."
-            )}
-          </p>
-        </div>
-        <h2 style={{ fontSize: 22, margin: "36px 0 6px" }}>Il distacco nel tempo</h2>
-        <p className="sub" style={{ marginBottom: 14 }}>
-          Sopra lo zero è avanti {A.name}, sotto è avanti {B.name}.
-        </p>
-        <LineChart
-          signed
-          label={`Distacco tra ${A.name} e ${B.name}`}
-          labels={["Inizio", ...acts.map((x) => fmtS(x.date))]}
-          series={[{ name: `Distacco (${A.name} − ${B.name})`, color: "#d8b25e", vals: [0, ...m.hist.map((h) => h.pts[a] - h.pts[b])] }]}
-        />
+              </p>
+              <Cmp
+                rows={[
+                  ["Punti totali", ra.pts, rb.pts, 1],
+                  ["Posizione", ra.pos, rb.pos, -1, ra.pos + "°", rb.pos + "°"],
+                  ...(m.prevPos
+                    ? ([["Ultima giornata", vA ?? 0, vB ?? 0, 1, <Variation key="a" d={vA} />, <Variation key="b" d={vB} />]] as Row[])
+                    : []),
+                ]}
+              />
+            </div>
+
+            <div className="rv">
+              <h2>Ultimi 7 giorni</h2>
+              <p className="lead">
+                Dal {fmtS(W0)} a oggi
+                {wA || wB ? (wA === wB ? ": stessi punti." : `: meglio ${wA > wB ? A.name : B.name}.`) : ": nessun punto per le due squadre."}
+              </p>
+              <Cmp
+                rows={[
+                  ["Punti nel periodo", wA, wB, 1],
+                  ["Attività con punti", nwA, nwB, 1],
+                  ["Rispetto ai 7 giorni prima", wA - pA, wB - pB, 1, signed(wA - pA), signed(wB - pB)],
+                ]}
+              />
+            </div>
+
+            <div className="rv">
+              <h2>Scontri diretti</h2>
+              {matches.length ? (
+                <>
+                  <p className="lead">
+                    Sfide in cui hanno preso punti entrambe: <b>{winA}</b> per {A.name}, <b>{winB}</b> per {B.name}
+                    {draws ? `, ${draws} in parità` : ""}.
+                  </p>
+                  <ul className="h2h">
+                    {[...matches].reverse().map((x) => (
+                      <li key={x.a.id}>
+                        <b className={x.res === "A" ? "w" : ""}>{x.ptsA}</b>
+                        <div>
+                          <span className="t">{x.a.title}</span>
+                          <span className="muted">
+                            {fmtS(x.a.date)}
+                            {x.byWinner ? " · vincitrice indicata dagli organizzatori" : ""}
+                          </span>
+                        </div>
+                        <b className={x.res === "B" ? "w" : ""}>{x.ptsB}</b>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="note">
+                    Conta come scontro diretto solo una sfida in cui hanno preso punti entrambe le squadre. Vince la squadra indicata dagli
+                    organizzatori; se non è indicata, chi ha fatto più punti in quella sfida.
+                  </p>
+                </>
+              ) : (
+                <p className="empty">
+                  Nessuno scontro diretto registrato: finora {A.name} e {B.name} non hanno preso punti nella stessa sfida.
+                </p>
+              )}
+            </div>
+
+            {m.hist.length > 1 ? (
+              <div className="rv">
+                <h2>Il distacco nel tempo</h2>
+                <p className="lead">
+                  Sopra lo zero è avanti {A.name}, sotto è avanti {B.name}.
+                </p>
+                <LineChart
+                  signed
+                  label={`Distacco tra ${A.name} e ${B.name}`}
+                  labels={["Inizio", ...acts.map((x) => fmtS(x.date))]}
+                  series={[{ name: `Distacco (${A.name} − ${B.name})`, color: "#d8b25e", vals: [0, ...m.hist.map((h) => h.pts[a] - h.pts[b])] }]}
+                />
+              </div>
+            ) : null}
+          </>
+        )}
       </>
     );
   }
@@ -125,10 +206,10 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
           </select>
         </label>
       </div>
-      {m.started && close && close.d <= 5 ? (
+      {m.started && close && !(close.a.id === a && close.b.id === b) ? (
         <div className="hint">
           <span>
-            Sfida più serrata: <b>{close.a.name}</b> e <b>{close.b.name}</b>, {close.d} {close.d === 1 ? "punto" : "punti"} di distanza.
+            Sfida più serrata: <b>{close.a.name}</b> e <b>{close.b.name}</b>, {pts(close.d)} di distanza.
           </span>
           <button
             type="button"

@@ -1,11 +1,11 @@
-id,data,titolo,tipo,descrizione,stato,data_fine
-a1,2026-09-26,Torneo di calcetto,Sport,"Prima giornata, gironi interclasse.",auto,
-a2,2026-10-03,Quiz di storia sarda,Cultura,Domande a squadre in aula magna.,,
-a3,2026-10-17,Raccolta solidale,Volontariato,Raccolta alimentare per la Caritas.,auto,2026-10-18
-a4,2026-10-24,Corsa campestre,Sport,,auto,
-a5,2026-10-31,Concorso di scrittura,Cultura,Racconti brevi sul tema della memoria.,auto,
-a6,2026-11-07,Olimpiadi di matematica,Cultura,Fase d'istituto.,auto,
-a7,2026-11-12,Torneo di pallavolo,Sport,Finali.,auto,
-a8,2026-11-20,Giornata del riciclo,Ambiente,Pulizia del cortile e laboratorio.,auto,
-a9,2026-12-05,Torneo di scacchi,Cultura,,annullata,
-a10,2026-12-12,Coro di Natale,Musica,Esibizione in auditorium.,auto,2026-12-13
+id,data,titolo,tipo,descrizione,stato,data_fine,vincitore
+a1,2026-09-26,Torneo di calcetto,Sport,"Prima giornata, gironi interclasse.",auto,,Shardana
+a2,2026-10-03,Quiz di storia sarda,Cultura,Domande a squadre in aula magna.,,,Eleonora d'Arborea
+a3,2026-10-17,Raccolta solidale,Volontariato,Raccolta alimentare per la Caritas.,auto,2026-10-18,
+a4,2026-10-24,Corsa campestre,Sport,,auto,,
+a5,2026-10-31,Concorso di scrittura,Cultura,Racconti brevi sul tema della memoria.,auto,,
+a6,2026-11-07,Olimpiadi di matematica,Cultura,Fase d'istituto.,auto,,
+a7,2026-11-12,Torneo di pallavolo,Sport,Finali.,auto,,Shardana
+a8,2026-11-20,Giornata del riciclo,Ambiente,Pulizia del cortile e laboratorio.,auto,,
+a9,2026-12-05,Torneo di scacchi,Cultura,,annullata,,
+a10,2026-12-12,Coro di Natale,Musica,Esibizione in auditorium.,auto,2026-12-13,

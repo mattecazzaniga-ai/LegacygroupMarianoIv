@@ -74,8 +74,8 @@ export function standings(teams: Team[], list: Activity[], teamOf: TeamOf, tiebr
 }
 
 /**
- * Posizioni prima dell'ultima attività (null se non confrontabile:
- * meno di due attività o nessun punto prima).
+ * Posizioni prima dell'ultima giornata di sfide (tutte le attività dell'ultima data).
+ * null se non confrontabile: una sola giornata o nessun punto prima.
  */
 export function previousPositions(
   teams: Team[],
@@ -83,8 +83,11 @@ export function previousPositions(
   teamOf: TeamOf,
   tiebreak: Tiebreak,
 ): Record<string, number> | null {
-  if (acts.length < 2) return null;
-  const prev = standings(teams, acts.slice(0, -1), teamOf, tiebreak);
+  if (!acts.length) return null;
+  const lastDay = acts[acts.length - 1].date;
+  const before = acts.filter((a) => a.date < lastDay);
+  if (!before.length) return null;
+  const prev = standings(teams, before, teamOf, tiebreak);
   if (!prev.some((r) => r.pts > 0)) return null;
   return Object.fromEntries(prev.map((r) => [r.team.id, r.pos]));
 }
@@ -132,12 +135,12 @@ export function soleLeader(st: StandingRow[]): Team | null {
   return st[0] && st[0].pts > 0 && (!st[1] || st[1].pts < st[0].pts) ? st[0].team : null;
 }
 
-/** Vincitrici di un'attività: quella scelta dagli organizzatori, altrimenti chi ha fatto più punti. */
-export function winnersOf(h: HistEntry, teams: Team[]): Team[] {
-  if (h.a.winner) {
-    const t = teams.find((x) => x.id === h.a.winner);
-    if (t) return [t];
-  }
-  const m = Math.max(...teams.map((t) => h.ap[t.id]));
-  return m > 0 ? teams.filter((t) => h.ap[t.id] === m) : [];
+/**
+ * Vincitrice di una sfida: solo quella indicata dagli organizzatori.
+ * Non tutte le attività prevedono un vincitore (es. punti per collaborazione),
+ * quindi non si deduce mai dai punti.
+ */
+export function winnersOf(h: Pick<HistEntry, "a">, teams: Team[]): Team[] {
+  const t = h.a.winner ? teams.find((x) => x.id === h.a.winner) : undefined;
+  return t ? [t] : [];
 }

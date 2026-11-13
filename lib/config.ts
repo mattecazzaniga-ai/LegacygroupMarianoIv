@@ -23,6 +23,14 @@ export const CONFIG = {
   timeZone: "Europe/Rome",
 } as const;
 
+/**
+ * ALBO D'ORO DELLE EDIZIONI PASSATE
+ * A fine stagione aggiungi una riga, dalla più recente. `vincitrice` è l'id della squadra:
+ * componidori, mamuthones, eleonora, giganti, shardana, mariano-iv.
+ * Esempio: { edizione: "2026/27", vincitrice: "eleonora", punti: 412 },
+ */
+export const ALBO: { edizione: string; vincitrice: string; punti?: number }[] = [];
+
 function siteUrl(): string {
   const candidates = [process.env.NEXT_PUBLIC_SITE_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL];
   for (const c of candidates) {
