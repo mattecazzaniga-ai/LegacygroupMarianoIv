@@ -7,17 +7,15 @@ export function Flash({ ok, err }: { ok?: string; err?: string }) {
   return null;
 }
 
-export function AdminBar({ email }: { email?: string }) {
+export function AdminBar() {
   return (
     <div className="adminbar">
       <nav aria-label="Area organizzatori">
         <Link href="/admin">Attività</Link>
         <Link href="/admin/registro">Registro modifiche</Link>
-        <Link href="/admin/password">Cambia password</Link>
         <Link href="/" target="_blank">Apri il sito ↗</Link>
       </nav>
       <form action={signOut}>
-        {email ? <span className="muted">{email}</span> : null}
         <button type="submit" className="btn ghost sm">
           Esci
         </button>

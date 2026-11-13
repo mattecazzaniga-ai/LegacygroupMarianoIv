@@ -3,6 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { isSupabaseConfigured, SUPABASE_ANON_KEY, SUPABASE_URL } from "../data/supabase";
+import { GATE_COOKIE, validPass } from "./pin";
 
 /** Client Supabase con la sessione dell'utente (cookie). Le regole RLS decidono cosa può fare. */
 export async function supabaseServer() {
@@ -21,9 +22,10 @@ export async function supabaseServer() {
   });
 }
 
-/** Utente collegato o redirect al login. */
+/** PIN inserito da poco e utente collegato, altrimenti redirect alla pagina del PIN. */
 export async function requireUser() {
   if (!isSupabaseConfigured()) redirect("/admin/login");
+  if (!validPass((await cookies()).get(GATE_COOKIE)?.value)) redirect("/admin/login");
   const sb = await supabaseServer();
   const { data } = await sb.auth.getUser();
   if (!data.user) redirect("/admin/login");

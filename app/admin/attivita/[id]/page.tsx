@@ -11,7 +11,7 @@ import WinnerField from "../../WinnerField";
 
 export default async function EditActivity({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ok?: string; err?: string }> }) {
   if (!isSupabaseConfigured()) return <NotConfigured />;
-  const { sb, user } = await requireUser();
+  const { sb } = await requireUser();
   const id = Number((await params).id);
   const { ok, err } = await searchParams;
   if (!Number.isInteger(id)) notFound();
@@ -30,7 +30,7 @@ export default async function EditActivity({ params, searchParams }: { params: P
 
   return (
     <section>
-      <AdminBar email={user.email} />
+      <AdminBar />
       <Link className="back" href="/admin">
         ← Tutte le attività
       </Link>

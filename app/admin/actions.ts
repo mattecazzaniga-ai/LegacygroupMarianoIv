@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 import { isValidDate } from "@/lib/dates";
 import { DATA_TAG } from "@/lib/data/supabase";
 import { TEAMS } from "@/lib/teams";
+import { cookies } from "next/headers";
+import { adminAccount, checkPin, GATE_COOKIE, isPinConfigured, newPass } from "@/lib/supabase/pin";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
 /** Dopo ogni salvataggio il sito pubblico si aggiorna subito, senza aspettare il minuto. */
@@ -22,18 +24,23 @@ const back = (path: string, msg?: string, err?: string): never => {
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
 export async function signIn(form: FormData) {
+  if (!isPinConfigured()) back("/admin/login", undefined, "Accesso con PIN non ancora configurato su Vercel.");
+  if (!checkPin(String(form.get("pin") ?? ""))) {
+    await new Promise((r) => setTimeout(r, 1500)); // rallenta chi prova PIN a caso
+    back("/admin/login", undefined, "PIN sbagliato.");
+  }
   const sb = await supabaseServer();
-  // tollerante agli errori tipici da telefono: maiuscola automatica, spazi, apici copiati
-  const email = str(form, "email").toLowerCase().replace(/\s+/g, "");
-  const password = String(form.get("password") ?? "").trim().replace(/^[`'"]+|[`'"]+$/g, "");
-  const { error } = await sb.auth.signInWithPassword({ email, password });
-  if (error) back("/admin/login", undefined, "Email o password non corrette.");
+  const { error } = await sb.auth.signInWithPassword(adminAccount());
+  if (error) back("/admin/login", undefined, "PIN giusto, ma il collegamento al database non è riuscito. Riprova tra poco.");
+  // cookie di sessione (niente scadenza): chiuso il browser, il PIN va rimesso
+  (await cookies()).set(GATE_COOKIE, newPass(), { httpOnly: true, secure: true, sameSite: "lax", path: "/admin" });
   redirect("/admin");
 }
 
 export async function signOut() {
   const sb = await supabaseServer();
   await sb.auth.signOut();
+  (await cookies()).delete({ name: GATE_COOKIE, path: "/admin" });
   redirect("/admin/login");
 }
 
@@ -133,13 +140,3 @@ export async function deletePoint(activityId: number, pointId: number) {
   back(path, "Assegnazione eliminata.");
 }
 
-export async function changePassword(form: FormData) {
-  const { sb } = await requireUser();
-  const p1 = String(form.get("password") ?? ""),
-    p2 = String(form.get("password2") ?? "");
-  if (p1.length < 10) back("/admin/password", undefined, "Usa almeno 10 caratteri.");
-  if (p1 !== p2) back("/admin/password", undefined, "Le due password non coincidono.");
-  const { error } = await sb.auth.updateUser({ password: p1 });
-  if (error) back("/admin/password", undefined, "Cambio non riuscito: " + error.message);
-  back("/admin/password", "Password cambiata.");
-}

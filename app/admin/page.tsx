@@ -10,7 +10,7 @@ import { TEAMS } from "@/lib/teams";
 
 export default async function Admin({ searchParams }: { searchParams: Promise<{ ok?: string; err?: string }> }) {
   if (!isSupabaseConfigured()) return <NotConfigured />;
-  const { sb, user } = await requireUser();
+  const { sb } = await requireUser();
   const { ok, err } = await searchParams;
   const [{ data: acts }, { data: pts }] = await Promise.all([
     sb.from("attivita").select("*").order("data", { ascending: false }).order("id", { ascending: false }),
@@ -25,7 +25,7 @@ export default async function Admin({ searchParams }: { searchParams: Promise<{ 
 
   return (
     <section>
-      <AdminBar email={user.email} />
+      <AdminBar />
       <h1 className="page">Attività</h1>
       <p className="sub">Crea un&apos;attività, assegna i punti alle classi e pubblicala: il sito si aggiorna subito.</p>
       <Flash ok={ok} err={err} />

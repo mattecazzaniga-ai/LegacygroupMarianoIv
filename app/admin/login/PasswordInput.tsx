@@ -1,15 +1,15 @@
 "use client";
 import { useState } from "react";
 
-/** Campo password con "Mostra": utile dal telefono per controllare cosa si è scritto. */
+/** Campo PIN con "Mostra": utile dal telefono per controllare cosa si è scritto. */
 export default function PasswordInput() {
   const [show, setShow] = useState(false);
   return (
     <span className="pwbox">
       <input
         type={show ? "text" : "password"}
-        name="password"
-        autoComplete="current-password"
+        name="pin"
+        autoComplete="off"
         autoCapitalize="none"
         autoCorrect="off"
         spellCheck={false}

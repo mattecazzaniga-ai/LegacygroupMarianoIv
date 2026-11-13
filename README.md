@@ -25,8 +25,12 @@ Ogni modifica finisce nel **registro modifiche**, con chi l'ha fatta e quando.
 8. Su Vercel → progetto → **Settings → Environment Variables** aggiungi:
    - `NEXT_PUBLIC_SUPABASE_URL` = Project URL
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY` = chiave anon public
+   - `ADMIN_PIN` = il PIN per entrare nell'area organizzatori (tipo **Sensitive**)
+   - `ADMIN_EMAIL` / `ADMIN_PASSWORD` = email e password dell'utente creato al punto 6 (tipo **Sensitive**: nessuno le digita, le usa solo il server)
    poi **Deployments → ⋯ → Redeploy**.
-9. Apri `https://IL-TUO-SITO/admin` e accedi.
+9. Apri `https://IL-TUO-SITO/admin` e inserisci il PIN. L'accesso dura finché non chiudi il browser (massimo 2 ore).
+
+**Cambiare il PIN:** Vercel → Settings → Environment Variables → `ADMIN_PIN` → Edit → Redeploy. Le sessioni aperte si chiudono.
 
 Note:
 - La chiave **anon** può stare nel sito: le regole del database fanno vedere al pubblico solo le attività pubblicate e fanno scrivere solo gli organizzatori in lista.

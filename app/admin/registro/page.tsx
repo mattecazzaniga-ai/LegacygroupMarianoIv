@@ -25,12 +25,12 @@ function describe(l: Log) {
 
 export default async function Registro() {
   if (!isSupabaseConfigured()) return <NotConfigured />;
-  const { sb, user } = await requireUser();
+  const { sb } = await requireUser();
   const { data } = await sb.from("registro").select("*").order("id", { ascending: false }).limit(200);
   const logs = (data ?? []) as Log[];
   return (
     <section>
-      <AdminBar email={user.email} />
+      <AdminBar />
       <h1 className="page">Registro modifiche</h1>
       <p className="sub">Ogni inserimento, modifica o eliminazione, con chi l&apos;ha fatta e quando. Le ultime 200.</p>
       <ol className="log">
