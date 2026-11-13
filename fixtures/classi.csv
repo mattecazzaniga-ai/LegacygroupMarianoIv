@@ -1,33 +1,33 @@
 classe,squadra
-1BS,Componidori
-2AS,Componidori
-2E,Componidori
-3CB,Componidori
-3F,Componidori
-4BB,Componidori
-5BS,Componidori
-1AS,Mamuthone
-1C,Mamuthone
-2D,Mamuthone
-3E,Mamuthone
-4CB,Mamuthone
-4CS,Mamuthone
-5AS,Mamuthone
-1A,Janas
-1D,Janas
-2F,Janas
-3CS,Janas
-4F,Janas
-5A,Janas
-5BB,Janas
-1CS,"Giganti di Mont'e Prama"
-1F,"Giganti di Mont'e Prama"
-2CB,"Giganti di Mont'e Prama"
-3BB,"Giganti di Mont'e Prama"
-3G,"Giganti di Mont'e Prama"
-4A,"Giganti di Mont'e Prama"
-4AS,"Giganti di Mont'e Prama"
-5E,"Giganti di Mont'e Prama"
+1BS,Su Componidori
+2AS,Su Componidori
+2E,Su Componidori
+3CB,Su Componidori
+3F,Su Componidori
+4BB,Su Componidori
+5BS,Su Componidori
+1AS,Mamuthones
+1C,Mamuthones
+2D,Mamuthones
+3E,Mamuthones
+4CB,Mamuthones
+4CS,Mamuthones
+5AS,Mamuthones
+1A,"Eleonora d'Arborea"
+1D,"Eleonora d'Arborea"
+2F,"Eleonora d'Arborea"
+3CS,"Eleonora d'Arborea"
+4F,"Eleonora d'Arborea"
+5A,"Eleonora d'Arborea"
+5BB,"Eleonora d'Arborea"
+1CS,Giganti di Monteprama
+1F,Giganti di Monteprama
+2CB,Giganti di Monteprama
+3BB,Giganti di Monteprama
+3G,Giganti di Monteprama
+4A,Giganti di Monteprama
+4AS,Giganti di Monteprama
+5E,Giganti di Monteprama
 1BB,Shardana
 2A,Shardana
 2BS,Shardana
@@ -35,10 +35,10 @@ classe,squadra
 3D,Shardana
 4E,Shardana
 5DB,Shardana
-1E,Issohadores
-2BB,Issohadores
-3A,Issohadores
-3AS,Issohadores
-4BS,Issohadores
-5G,Issohadores
-5H,Issohadores
+1E,Mariano IV
+2BB,Mariano IV
+3A,Mariano IV
+3AS,Mariano IV
+4BS,Mariano IV
+5G,Mariano IV
+5H,Mariano IV

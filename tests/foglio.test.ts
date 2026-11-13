@@ -82,8 +82,8 @@ describe("validazione del foglio", () => {
   });
 
   it("foglio Classi: squadra per nome o id, classi doppie e sconosciute segnalate", () => {
-    const d = ds("", "", "classe,squadra\n3A,janas\n3A,Shardana\n4B,Squadra X\n5A,GIGANTI DI MONT'E PRAMA\n");
-    expect(d.teams.find((t) => t.id === "janas")!.classes).toEqual(["3A"]);
+    const d = ds("", "", "classe,squadra\n3A,janas\n3A,Shardana\n4B,Squadra X\n5A,GIGANTI DI MONTEPRAMA\n");
+    expect(d.teams.find((t) => t.id === "eleonora")!.classes).toEqual(["3A"]);
     expect(d.teams.find((t) => t.id === "giganti")!.classes).toEqual(["5A"]);
     expect(d.issues.filter((i) => i.sheet === "Classi" && i.level === "errore").map((i) => i.row)).toEqual([3, 4]);
   });

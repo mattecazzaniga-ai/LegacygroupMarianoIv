@@ -5,12 +5,12 @@ from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.worksheet.datavalidation import DataValidation
 
 TEAMS = {
-    "Componidori": ["1BS","2AS","2E","3CB","3F","4BB","5BS"],
-    "Mamuthone": ["1AS","1C","2D","3E","4CB","4CS","5AS"],
-    "Janas": ["1A","1D","2F","3CS","4F","5A","5BB"],
-    "Giganti di Mont'e Prama": ["1CS","1F","2CB","3BB","3G","4A","4AS","5E"],
+    "Su Componidori": ["1BS","2AS","2E","3CB","3F","4BB","5BS"],
+    "Mamuthones": ["1AS","1C","2D","3E","4CB","4CS","5AS"],
+    "Eleonora d'Arborea": ["1A","1D","2F","3CS","4F","5A","5BB"],
+    "Giganti di Monteprama": ["1CS","1F","2CB","3BB","3G","4A","4AS","5E"],
     "Shardana": ["1BB","2A","2BS","3BS","3D","4E","5DB"],
-    "Issohadores": ["1E","2BB","3A","3AS","4BS","5G","5H"],
+    "Mariano IV": ["1E","2BB","3A","3AS","4BS","5G","5H"],
 }
 HEAD = Font(bold=True, color="FFFFFF")
 FILL = PatternFill("solid", fgColor="0A1B33")

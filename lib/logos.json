@@ -1,29 +1,29 @@
 {
-  "source": "provvisori",
+  "source": "stemmi/*.png",
   "sizes": {
     "componidori": {
-      "w": 460,
-      "h": 510
+      "w": 422,
+      "h": 503
     },
-    "mamuthone": {
-      "w": 460,
-      "h": 510
+    "mamuthones": {
+      "w": 425,
+      "h": 503
     },
-    "janas": {
-      "w": 460,
-      "h": 510
+    "eleonora": {
+      "w": 426,
+      "h": 503
     },
     "giganti": {
-      "w": 460,
-      "h": 510
+      "w": 421,
+      "h": 503
     },
     "shardana": {
-      "w": 460,
-      "h": 510
+      "w": 428,
+      "h": 503
     },
-    "issohadores": {
-      "w": 460,
-      "h": 510
+    "mariano-iv": {
+      "w": 425,
+      "h": 503
     }
   }
 }

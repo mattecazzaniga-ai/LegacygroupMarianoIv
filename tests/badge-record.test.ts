@@ -15,45 +15,45 @@ describe("badge", () => {
   });
 
   it("Leader: solo chi è primo (anche a pari merito)", () => {
-    const m = model([act("2026-11-01", [[C("janas"), 5], [C("shardana"), 5], [C("mamuthone"), 1]])]);
-    expect(badgeIds(m, "janas")).toContain("leader");
+    const m = model([act("2026-11-01", [[C("eleonora"), 5], [C("shardana"), 5], [C("mamuthones"), 1]])]);
+    expect(badgeIds(m, "eleonora")).toContain("leader");
     expect(badgeIds(m, "shardana")).toContain("leader");
-    expect(badgeIds(m, "mamuthone")).not.toContain("leader");
+    expect(badgeIds(m, "mamuthones")).not.toContain("leader");
   });
 
   it("In fiamme, Costanza, Dominatore, Colpo grosso, Rimonta", () => {
     const m = model([
-      act("2026-10-01", [[C("janas"), 15], [C("shardana"), 1]]),
-      act("2026-10-08", [[C("janas"), 5], [C("shardana"), 1]]),
-      act("2026-10-15", [[C("janas"), 5], [C("shardana"), 1]]),
-      act("2026-10-22", [[C("janas"), 1], [C("mamuthone"), 30]]),
+      act("2026-10-01", [[C("eleonora"), 15], [C("shardana"), 1]]),
+      act("2026-10-08", [[C("eleonora"), 5], [C("shardana"), 1]]),
+      act("2026-10-15", [[C("eleonora"), 5], [C("shardana"), 1]]),
+      act("2026-10-22", [[C("eleonora"), 1], [C("mamuthones"), 30]]),
     ]);
-    expect(badgeIds(m, "janas")).toEqual(expect.arrayContaining(["fiamme", "costanza", "dominatore", "colpo"]));
+    expect(badgeIds(m, "eleonora")).toEqual(expect.arrayContaining(["fiamme", "costanza", "dominatore", "colpo"]));
     expect(badgeIds(m, "shardana")).not.toContain("fiamme"); // nulla nell'ultima
-    expect(badgeIds(m, "mamuthone")).toEqual(expect.arrayContaining(["rimonta", "colpo", "leader"])); // da 3° a 1°
-    expect(badgeIds(m, "mamuthone")).not.toContain("costanza");
+    expect(badgeIds(m, "mamuthones")).toEqual(expect.arrayContaining(["rimonta", "colpo", "leader"])); // da 3° a 1°
+    expect(badgeIds(m, "mamuthones")).not.toContain("costanza");
   });
 
   it("Squadra del momento: più punti negli ultimi 7 giorni", () => {
-    const m = model([act("2026-10-01", [[C("janas"), 50]]), act("2026-11-12", [[C("shardana"), 2]])]);
+    const m = model([act("2026-10-01", [[C("eleonora"), 50]]), act("2026-11-12", [[C("shardana"), 2]])]);
     expect(badgeIds(m, "shardana")).toContain("momento");
-    expect(badgeIds(m, "janas")).not.toContain("momento");
+    expect(badgeIds(m, "eleonora")).not.toContain("momento");
   });
 
   it("Squadra al completo: tutte le classi con almeno un punto", () => {
-    const all = T.janas.classes.map((c): [string, number] => [c, 1]);
+    const all = T.eleonora.classes.map((c): [string, number] => [c, 1]);
     const m = model([act("2026-11-01", all)]);
-    expect(badgeIds(m, "janas")).toContain("completa");
+    expect(badgeIds(m, "eleonora")).toContain("completa");
     const m2 = model([act("2026-11-01", all.slice(1))]);
-    expect(badgeIds(m2, "janas")).not.toContain("completa");
+    expect(badgeIds(m2, "eleonora")).not.toContain("completa");
   });
 });
 
 describe("record (Hall of Fame)", () => {
   const acts = [
-    act("2026-10-05", [[C("janas"), 10], [C("janas", 1), 3, "individuale"], [C("shardana"), 4]], "Calcetto"),
+    act("2026-10-05", [[C("eleonora"), 10], [C("eleonora", 1), 3, "individuale"], [C("shardana"), 4]], "Calcetto"),
     act("2026-10-07", [[C("shardana"), 20]], "Quiz"),
-    act("2026-10-20", [[C("janas"), 6], [C("mamuthone"), 2]], "Corsa"),
+    act("2026-10-20", [[C("eleonora"), 6], [C("mamuthones"), 2]], "Corsa"),
   ];
   const m = model(acts);
   const rec = (id: string) => m.records.find((r) => r.id === id)!;
@@ -66,8 +66,8 @@ describe("record (Hall of Fame)", () => {
     expect(rec("squadra-attivita")).toMatchObject({ v: 20, n: "Shardana" });
     expect(rec("classe-attivita")).toMatchObject({ v: 20, n: C("shardana") });
     expect(rec("classe-top")).toMatchObject({ v: 24, n: C("shardana") });
-    expect(rec("classe-individuali")).toMatchObject({ v: 3, n: C("janas", 1) });
-    expect(rec("vittorie")).toMatchObject({ v: 2, n: "Janas" }); // vince la prima e la terza
+    expect(rec("classe-individuali")).toMatchObject({ v: 3, n: C("eleonora", 1) });
+    expect(rec("vittorie")).toMatchObject({ v: 2, n: "Eleonora d'Arborea" }); // vince la prima e la terza
     expect(rec("media")).toMatchObject({ v: 12, n: "Shardana" }); // 24 / 2
     expect(rec("settimana")).toMatchObject({ v: 24, n: "Shardana" }); // settimana del 5 ottobre
     expect(rec("vantaggio")).toMatchObject({ v: 11, n: "Shardana" }); // 24 − 13 dopo la seconda
@@ -82,7 +82,7 @@ describe("record (Hall of Fame)", () => {
 describe("Legacy Moment", () => {
   it("rileva partenza, sorpasso e traguardi", () => {
     const m = model([
-      act("2026-10-01", [[C("janas"), 10]], "Prima"),
+      act("2026-10-01", [[C("eleonora"), 10]], "Prima"),
       act("2026-10-02", [[C("shardana"), 60]], "Seconda"),
     ]);
     const titles = m.moments.map((x) => x.t);

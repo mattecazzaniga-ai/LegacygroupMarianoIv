@@ -3,7 +3,7 @@
  * indovinata né corretta, viene esclusa dal calcolo e segnalata in /controllo.
  */
 import { isValidDate } from "../dates";
-import { TEAMS } from "../teams";
+import { TEAM_ALIASES, TEAMS } from "../teams";
 import type { Activity, Award, CalEvent, Dataset, Issue, Kind, Team } from "../types";
 import { normKey, toTable } from "./csv";
 
@@ -47,6 +47,7 @@ function parseClasses(text: string, issues: Issue[]): Team[] {
     byKey.set(normKey(tm.id), tm);
     byKey.set(normKey(tm.name), tm);
   });
+  Object.entries(TEAM_ALIASES).forEach(([alias, id]) => byKey.set(normKey(alias), TEAMS.find((t) => t.id === id)!));
   const assigned: Record<string, string[]> = Object.fromEntries(TEAMS.map((tm) => [tm.id, []]));
   const seen = new Map<string, number>();
   for (const { line, v } of t.rows) {

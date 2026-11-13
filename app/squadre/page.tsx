@@ -6,7 +6,7 @@ import { getSite } from "@/lib/site";
 export const revalidate = 60;
 export const metadata = meta(
   "Le squadre",
-  "Componidori, Mamuthone, Janas, Giganti di Mont'e Prama, Shardana e Issohadores: le sei squadre di Legacy Group e le loro classi.",
+  "Su Componidori, Mamuthones, Eleonora d'Arborea, Giganti di Monteprama, Shardana e Mariano IV: le sei squadre di Legacy Group e le loro classi.",
   "/squadre",
 );
 
