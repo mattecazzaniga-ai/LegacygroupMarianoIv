@@ -1,5 +1,6 @@
 import { CONFIG, SCALE } from "@/lib/config";
 import { meta } from "@/lib/meta";
+import { PageHead, SecH } from "@/components/ui";
 
 export const metadata = meta("Regolamento", "Come funziona Legacy Group: squadre, punti collettivi e individuali, pari merito, Power Ranking e premio finale.", "/regolamento");
 
@@ -7,12 +8,8 @@ export default function Regolamento() {
   return (
     <div className="wrap">
       <section className="rules">
-        <h1 className="sr-only">Regolamento</h1>
-        <h2>
-          Rego<span className="g">lamento</span>
-        </h2>
-        <p className="sub">Come funziona Legacy Group.</p>
-        <div className="card">
+        <PageHead eyebrow="Come funziona" title="Regolamento" />
+        <div>
           <ol>
             <li>
               <b>Sei squadre, 43 classi.</b> Ogni classe dell&apos;istituto appartiene a una squadra, ognuna con un colore e un simbolo della Sardegna.
@@ -45,12 +42,11 @@ export default function Regolamento() {
             </li>
           </ol>
         </div>
-        <h2 style={{ marginTop: 26 }}>
-          Punti nelle <span className="g">sfide</span>
-        </h2>
-        <p className="sub">Scala per le sfide tra squadre.</p>
-        <div className="card">
-          <table>
+      </section>
+      <section>
+        <SecH t="Punti nelle sfide" sub="Scala per le sfide tra squadre." />
+        <div style={{ maxWidth: 420 }}>
+          <table className="scale">
             <tbody>
               {SCALE.map(([a, b]) => (
                 <tr key={a}>

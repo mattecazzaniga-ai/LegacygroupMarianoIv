@@ -1,4 +1,5 @@
 import ActivityLog from "@/components/ActivityLog";
+import { PageHead } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -10,11 +11,7 @@ export default async function Attivita() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Registro attività</h1>
-        <h2>
-          Registro <span className="g">attività</span>
-        </h2>
-        <p className="sub">Tutte le attività che hanno generato punti.</p>
+        <PageHead eyebrow="Registro" title="Attività" sub="Tutte le attività che hanno dato punti, dalla più recente." />
         <ActivityLog teams={m.teams} acts={m.acts} />
       </section>
     </div>

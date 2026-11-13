@@ -48,9 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <main id="contenuto">{children}</main>
         <footer>
           <div className="wrap">
-            <b>Legacy Group</b> · Mariano Quarto · Oristano · Anno scolastico 2026–2027
-            <br />
-            Organizzato dai rappresentanti di istituto. Sul sito compaiono solo le sigle delle classi, mai i nomi degli studenti.
+            <div>
+              <b>Legacy Group</b> · Istituto Mariano IV, Oristano · 2026/27
+            </div>
+            <div>Organizzato dai rappresentanti di istituto. Sul sito compaiono solo le sigle delle classi, mai i nomi degli studenti.</div>
           </div>
         </footer>
       </body>

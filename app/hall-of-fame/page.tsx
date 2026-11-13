@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Dot, Icon, Logo, SecH } from "@/components/ui";
+import { Dot, Icon, Logo, PageHead, SecH } from "@/components/ui";
 import { BADGES } from "@/lib/calc/badges";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
@@ -12,19 +12,18 @@ export default async function Hall() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Hall of Fame</h1>
-        <SecH t="Hall of" g="Fame" sub="I primati della stagione, aggiornati in automatico." />
+        <PageHead eyebrow="Record della stagione" title="Hall of Fame" sub="I primati di squadre e classi, aggiornati in automatico." />
         {m.records.length ? (
           <ul className="recs" style={{ listStyle: "none", padding: 0 }}>
             {m.records.map((r) => (
               <li className="rec" key={r.id}>
-                <Logo id={r.team.id} width={54} />
                 <div>
                   <div className="k">{r.k}</div>
                   <div className="v">{r.v}</div>
                   <div className="n">{r.n}</div>
                   <div className="s">{r.s}</div>
                 </div>
+                <Logo id={r.team.id} width={44} />
               </li>
             ))}
           </ul>
@@ -35,7 +34,7 @@ export default async function Hall() {
         )}
       </section>
       <section>
-        <SecH t="Badge" sub="Si conquistano e si perdono in base ai punti." />
+        <SecH t="Badge" sub="Otto riconoscimenti automatici: si conquistano e si perdono con i punti." />
         <ul className="bdg" style={{ listStyle: "none", padding: 0 }}>
           {BADGES.map((b) => {
             const own = m.teams.filter((g) => m.badgesOf(g).some((x) => x.id === b.id));

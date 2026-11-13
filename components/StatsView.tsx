@@ -5,38 +5,43 @@ import { allClasses, classPts, sum, teamActs, winnersOf } from "@/lib/calc/core"
 import { buildModel } from "@/lib/calc/model";
 import { rangePts } from "@/lib/calc/week";
 import { fmtS } from "@/lib/dates";
-import { chartColor, chartDash, classSlug } from "@/lib/teams";
+import { chartColor, classSlug } from "@/lib/teams";
 import type { Activity, Team, Tiebreak } from "@/lib/types";
 import LineChart from "./LineChart";
 import { Dot, HBars, Icon, Logo, ord, StatGrid } from "./ui";
 
 type Tab = "gen" | "team" | "cls";
+const H3 = ({ children, first }: { children: React.ReactNode; first?: boolean }) => (
+  <h2 style={{ fontSize: 22, margin: first ? "0 0 12px" : "36px 0 12px" }}>{children}</h2>
+);
 
 export default function StatsView({
   teams,
   acts,
   today,
   tiebreak,
+  focus,
   bars,
 }: {
   teams: Team[];
   acts: Activity[];
   today: string;
   tiebreak: Tiebreak;
+  focus: number;
   /** grafico a barre già pronto dal server */
   bars: React.ReactNode;
 }) {
   const m = useMemo(() => buildModel({ teams, acts, tiebreak, today }), [teams, acts, tiebreak, today]);
   const CLS = allClasses(teams);
   const [tab, setTab] = useState<Tab>("gen");
-  const [teamId, setTeamId] = useState(teams[0].id);
+  const [teamId, setTeamId] = useState(teams[focus]?.id ?? teams[0].id);
   const [cls, setCls] = useState(CLS[0]);
   const labels = ["Inizio", ...acts.map((a) => fmtS(a.date))];
 
   const tabs: [Tab, string][] = [
     ["gen", "Generale"],
-    ["team", "Per squadra"],
-    ["cls", "Per classe"],
+    ["team", "Squadra"],
+    ["cls", "Classe"],
   ];
 
   let body: React.ReactNode;
@@ -64,48 +69,39 @@ export default function StatsView({
             [withPts + " / " + CLS.length, "classi con punti"],
           ]}
         />
-        <h2 style={{ marginTop: 26 }}>
-          Punti <span className="g">nel tempo</span>
-        </h2>
-        <p className="sub">Andamento di ogni squadra attività dopo attività. Tocca il grafico per i dettagli, tocca una squadra nella legenda per nasconderla.</p>
+        <H3>Punti nel tempo</H3>
         <LineChart
+          mode="focus"
+          focus={focus}
           label="Punti cumulati per squadra"
           labels={labels}
-          series={teams.map((g) => ({ name: g.name, color: chartColor(g), dash: chartDash(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }))}
+          series={teams.map((g) => ({ name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }))}
         />
-        <h2 style={{ marginTop: 26 }}>
-          Punti per <span className="g">attività</span>
-        </h2>
-        <p className="sub">Quanti punti sono stati assegnati in ogni attività.</p>
+        <H3>Punti per attività</H3>
         {bars}
-        <h2 style={{ marginTop: 26 }}>
-          Peso di <span className="g">ogni squadra</span>
-        </h2>
-        <p className="sub">Quota sul totale dei punti assegnati.</p>
-        <div className="card">
-          <HBars rows={m.now.map((r) => ({ name: r.team.name, v: r.pts, color: chartColor(r.team), txt: total ? Math.round((r.pts / tot) * 100) + "%" : "0%" }))} />
+        <div className="g2" style={{ marginTop: 36 }}>
+          <div>
+            <H3 first>Quota di ogni squadra</H3>
+            <HBars rows={m.now.map((r) => ({ name: r.team.name, v: r.pts, color: chartColor(r.team), txt: total ? Math.round((r.pts / tot) * 100) + "%" : "0%" }))} />
+          </div>
+          <div>
+            <H3 first>Collettivi e individuali</H3>
+            <HBars
+              rows={[
+                { name: "Collettivi", v: col, color: "#d8b25e" },
+                { name: "Individuali", v: ind, color: "#8fb3e0" },
+              ]}
+            />
+            {topT ? (
+              <p className="note">
+                Tipologia più frequente: {topT[0]} ({topT[1]} attività).
+              </p>
+            ) : null}
+          </div>
         </div>
-        <h2 style={{ marginTop: 26 }}>
-          Individuali e <span className="g">collettivi</span>
-        </h2>
-        <div className="card">
-          <HBars
-            rows={[
-              { name: "Collettivi", v: col, color: "#d4ad55" },
-              { name: "Individuali", v: ind, color: "#9fb6d6" },
-            ]}
-          />
-          {topT ? (
-            <p className="note">
-              Tipologia più frequente: <b>{topT[0]}</b> ({topT[1]} attività).
-            </p>
-          ) : null}
-        </div>
-        <h2 style={{ marginTop: 26 }}>
-          Le prime <span className="g">10 classi</span>
-        </h2>
-        <div className="card scroll">
-          {tops.length ? (
+        <H3>Le prime 10 classi</H3>
+        {tops.length ? (
+          <div className="scroll">
             <table className="tbl">
               <thead>
                 <tr>
@@ -113,7 +109,7 @@ export default function StatsView({
                   <th scope="col">Squadra</th>
                   <th scope="col">Ind.</th>
                   <th scope="col">Coll.</th>
-                  <th scope="col">Tot.</th>
+                  <th scope="col">Totale</th>
                 </tr>
               </thead>
               <tbody>
@@ -139,10 +135,10 @@ export default function StatsView({
                 ))}
               </tbody>
             </table>
-          ) : (
-            <p className="empty">Ancora nessuna classe con punti.</p>
-          )}
-        </div>
+          </div>
+        ) : (
+          <p className="empty">Ancora nessuna classe con punti.</p>
+        )}
       </>
     );
   } else if (tab === "team") {
@@ -153,6 +149,7 @@ export default function StatsView({
     const avg = n ? Math.round((r.pts / n) * 10) / 10 : 0;
     const cl = g.classes.map((c) => ({ c, v: classPts(c, acts) })).sort((a, b) => b.v - a.v || a.c.localeCompare(b.c));
     const badges = m.badgesOf(g);
+    const isLeader = m.now[0].team.id === g.id;
     body = (
       <>
         <div className="filters">
@@ -171,7 +168,7 @@ export default function StatsView({
           <Logo id={g.id} width={72} />
           <div>
             <div className="eyebrow">{m.started ? ord(r.pos) + " in classifica" : "Squadra"}</div>
-            <h2 style={{ fontSize: 34, margin: 0 }}>{g.name}</h2>
+            <h2 style={{ fontSize: 30, marginTop: 6 }}>{g.name}</h2>
           </div>
         </div>
         <StatGrid
@@ -182,38 +179,34 @@ export default function StatsView({
             [rangePts(g, acts, m.teamOf, m.windows.W0), "punti in 7 giorni"],
           ]}
         />
-        <h2 style={{ marginTop: 22 }}>
-          Punti <span className="g">nel tempo</span>
-        </h2>
+        <H3>Punti nel tempo</H3>
         <LineChart
           label={`Punti cumulati di ${g.name}`}
           labels={labels}
           series={[
-            { name: g.name, color: chartColor(g), dash: chartDash(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] },
-            { name: "Prima in classifica", color: "#d4ad55", dash: "3 4", vals: [0, ...m.hist.map((h) => h.st[0].pts)] },
+            { name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] },
+            ...(isLeader ? [] : [{ name: "Prima in classifica", color: "", ref: true, vals: [0, ...m.hist.map((h) => h.st[0].pts)] }]),
           ]}
         />
-        <h2 style={{ marginTop: 22 }}>
-          Punti per <span className="g">classe</span>
-        </h2>
-        <div className="card">
-          <HBars rows={cl.map((x) => ({ name: x.c, v: x.v, color: chartColor(g) }))} />
-        </div>
-        <h2 style={{ marginTop: 22 }}>Badge</h2>
-        <div className="card">
-          {badges.length ? (
-            <div className="own">
-              {badges.map((b) => (
-                <span className="chip" key={b.id} title={b.rule}>
-                  <Icon n={b.ic} size={16} /> {b.name}
-                </span>
-              ))}
-            </div>
-          ) : (
-            <p className="empty" style={{ margin: 0 }}>
-              Nessun badge per ora.
-            </p>
-          )}
+        <div className="g2" style={{ marginTop: 36 }}>
+          <div>
+            <H3 first>Punti per classe</H3>
+            <HBars rows={cl.map((x) => ({ name: x.c, v: x.v, color: chartColor(g) }))} />
+          </div>
+          <div>
+            <H3 first>Badge</H3>
+            {badges.length ? (
+              <div className="own" style={{ marginTop: 0 }}>
+                {badges.map((b) => (
+                  <span className="chip" key={b.id} title={b.rule}>
+                    <Icon n={b.ic} size={14} /> {b.name}
+                  </span>
+                ))}
+              </div>
+            ) : (
+              <p className="empty">Nessun badge per ora.</p>
+            )}
+          </div>
         </div>
       </>
     );
@@ -249,31 +242,29 @@ export default function StatsView({
           <Logo id={g.id} width={72} />
           <div>
             <div className="eyebrow">{g.name}</div>
-            <h2 style={{ fontSize: 34, margin: 0 }}>{cls}</h2>
+            <h2 style={{ fontSize: 30, marginTop: 6 }}>Classe {cls}</h2>
           </div>
         </div>
         <StatGrid
           items={[
             [v, "punti totali"],
-            [v ? ord(pos) + " / " + CLS.length : "–", "nella scuola"],
-            [v ? ord(posT) + " / " + g.classes.length : "–", "nella squadra"],
+            [v ? ord(pos) + " su " + CLS.length : "–", "nella scuola"],
+            [v ? ord(posT) + " su " + g.classes.length : "–", "nella squadra"],
             [avgT, "media della squadra"],
           ]}
         />
-        <h2 style={{ marginTop: 22 }}>
-          Punti <span className="g">nel tempo</span>
-        </h2>
+        <H3>Punti nel tempo</H3>
         <LineChart
           label={`Punti cumulati della classe ${cls}`}
           labels={labels}
           series={[
-            { name: cls, color: chartColor(g), dash: chartDash(g), vals: cum },
-            { name: "Media squadra", color: "#9fb6d6", dash: "4 4", vals: avgSeries },
+            { name: cls, color: chartColor(g), vals: cum },
+            { name: "Media della squadra", color: "", ref: true, vals: avgSeries },
           ]}
         />
-        <p style={{ marginTop: 12 }}>
-          <Link className="btn ghost" href={`/classe/${classSlug(cls)}`}>
-            Vai al dettaglio della classe →
+        <p style={{ marginTop: 16 }}>
+          <Link className="link" href={`/classe/${classSlug(cls)}`}>
+            Storico della classe {cls}
           </Link>
         </p>
       </>
@@ -282,9 +273,9 @@ export default function StatsView({
 
   return (
     <>
-      <div className="quick" role="tablist" aria-label="Tipo di statistiche" style={{ marginBottom: 16 }}>
+      <div className="seg" role="tablist" aria-label="Tipo di statistiche">
         {tabs.map(([k, l]) => (
-          <button key={k} type="button" role="tab" aria-selected={tab === k} className={"btn" + (tab === k ? "" : " ghost")} onClick={() => setTab(k)}>
+          <button key={k} type="button" role="tab" aria-selected={tab === k} onClick={() => setTab(k)}>
             {l}
           </button>
         ))}

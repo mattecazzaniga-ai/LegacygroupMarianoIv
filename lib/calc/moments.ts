@@ -52,7 +52,7 @@ export function moments(teams: Team[], acts: Activity[], teamOf: TeamOf, hist: H
       });
       if (!full.has(g.id) && g.classes.length > 0 && g.classes.every((c) => classPts(c, upTo) > 0)) {
         full.add(g.id);
-        add("Squadra al completo", "Tutte le classi dei " + g.name + " hanno preso punti.");
+        add("Squadra al completo", "Tutte le classi di " + g.name + " hanno preso punti.");
       }
       if (h.ap[g.id] > recordV) {
         if (recordV > 0 && k > 0) add("Nuovo record di giornata", g.name + " porta a " + h.ap[g.id] + " il massimo di punti in una sola attività.");

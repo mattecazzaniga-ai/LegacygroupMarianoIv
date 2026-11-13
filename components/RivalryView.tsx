@@ -53,32 +53,32 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
       <>
         <div className="vs">
           <Link href={`/squadra/${A.id}`}>
-            <Logo id={A.id} width={120} />
+            <Logo id={A.id} width={120} priority />
             <div className="nm">{A.name}</div>
           </Link>
           <div className="x" aria-hidden="true">
             VS
           </div>
           <Link href={`/squadra/${B.id}`}>
-            <Logo id={B.id} width={120} />
+            <Logo id={B.id} width={120} priority />
             <div className="nm">{B.name}</div>
           </Link>
         </div>
-        <div className="card">
+        <div>
           <dl className="cmp">
             {rows.map(([l, x, y, hi]) => (
-              <div key={l} style={{ display: "contents" }}>
-                <dd className="a" style={{ margin: 0 }}>
+              <div key={l}>
+                <dd className="a">
                   <b className={better(x, y, hi) ? "win" : ""}>{x}</b>
                 </dd>
-                <dt className="lb">{l}</dt>
-                <dd style={{ margin: 0 }}>
+                <dt>{l}</dt>
+                <dd>
                   <b className={better(y, x, hi) ? "win" : ""}>{y}</b>
                 </dd>
               </div>
             ))}
           </dl>
-          <p className="note" style={{ textAlign: "center" }}>
+          <p className="note" style={{ textAlign: "center", marginTop: 16 }}>
             {m.started && ra.pts + rb.pts !== 0 ? (
               <>
                 {gap === 0 ? (
@@ -95,18 +95,15 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
             )}
           </p>
         </div>
-        <h2 style={{ marginTop: 22 }}>
-          Evoluzione del <span className="g">distacco</span>
-        </h2>
-        <p className="sub">
+        <h2 style={{ fontSize: 22, margin: "36px 0 6px" }}>Il distacco nel tempo</h2>
+        <p className="sub" style={{ marginBottom: 14 }}>
           Sopra lo zero è avanti {A.name}, sotto è avanti {B.name}.
         </p>
         <LineChart
           signed
-          nolegend
           label={`Distacco tra ${A.name} e ${B.name}`}
           labels={["Inizio", ...acts.map((x) => fmtS(x.date))]}
-          series={[{ name: `Distacco (${A.name} − ${B.name})`, color: "#d4ad55", vals: [0, ...m.hist.map((h) => h.pts[a] - h.pts[b])] }]}
+          series={[{ name: `Distacco (${A.name} − ${B.name})`, color: "#d8b25e", vals: [0, ...m.hist.map((h) => h.pts[a] - h.pts[b])] }]}
         />
       </>
     );
@@ -129,15 +126,12 @@ export default function RivalryView({ teams, acts, today, tiebreak }: { teams: T
         </label>
       </div>
       {m.started && close && close.d <= 5 ? (
-        <div className="card" style={{ marginBottom: 14 }}>
-          <div className="eyebrow" style={{ marginBottom: 4 }}>
-            Sfida più serrata
-          </div>
-          <b>{close.a.name}</b> e <b>{close.b.name}</b> sono separate da {close.d} {close.d === 1 ? "punto" : "punti"}.{" "}
+        <div className="hint">
+          <span>
+            Sfida più serrata: <b>{close.a.name}</b> e <b>{close.b.name}</b>, {close.d} {close.d === 1 ? "punto" : "punti"} di distanza.
+          </span>
           <button
             type="button"
-            className="lg"
-            style={{ color: "var(--gold)", fontSize: 16 }}
             onClick={() => {
               setA(close!.a.id);
               setB(close!.b.id);

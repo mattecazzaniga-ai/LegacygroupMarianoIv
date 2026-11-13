@@ -68,7 +68,7 @@ export default function ActivityLog({ teams, acts }: { teams: Team[]; acts: Acti
           <input type="date" value={F.to} onChange={set("to")} />
         </label>
       </div>
-      <div className="card" aria-live="polite">
+      <div className="list" aria-live="polite">
         {!acts.length ? (
           <p className="empty">Nessuna attività registrata per ora.</p>
         ) : list.length ? (

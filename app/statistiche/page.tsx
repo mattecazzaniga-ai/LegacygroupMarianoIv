@@ -1,6 +1,7 @@
 import BarChart from "@/components/BarChart";
+import { leaderIndex } from "@/components/blocks";
 import StatsView from "@/components/StatsView";
-import { SecH } from "@/components/ui";
+import { PageHead } from "@/components/ui";
 import { sum } from "@/lib/calc/core";
 import { CONFIG } from "@/lib/config";
 import { fmtS } from "@/lib/dates";
@@ -15,13 +16,13 @@ export default async function Statistiche() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Statistiche</h1>
-        <SecH t="Statistiche" sub="La competizione in numeri: generale, per squadra e per classe." />
+        <PageHead eyebrow="In numeri" title="Statistiche" sub="Generali, per squadra e per classe." />
         <StatsView
           teams={m.teams}
           acts={m.acts}
           today={m.today}
           tiebreak={CONFIG.tiebreak}
+          focus={leaderIndex(m)}
           bars={
             <BarChart
               label="Punti assegnati per attività"

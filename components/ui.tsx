@@ -13,7 +13,7 @@ import type { Activity, Award, Team } from "@/lib/types";
 const SIZES = logos.sizes as Record<string, { w: number; h: number }>;
 
 /** Stemma in webp: 128 px per le immagini piccole, 256 px per quelle grandi (schermi retina). */
-export function Logo({ id, width, alt = "", priority = false }: { id: string; width: number; alt?: string; priority?: boolean }) {
+export function Logo({ id, width, alt = "", priority = false, sizes }: { id: string; width: number; alt?: string; priority?: boolean; sizes?: string }) {
   const s = SIZES[id] ?? { w: 1, h: 1 };
   const h = Math.round((width * s.h) / s.w);
   return (
@@ -21,7 +21,7 @@ export function Logo({ id, width, alt = "", priority = false }: { id: string; wi
     <img
       src={`/loghi/${id}-${width > 64 ? 256 : 128}.webp`}
       srcSet={`/loghi/${id}-128.webp 128w, /loghi/${id}-256.webp 256w`}
-      sizes={`${width}px`}
+      sizes={sizes ?? `${width}px`}
       width={width}
       height={h}
       alt={alt}
@@ -33,23 +33,23 @@ export function Logo({ id, width, alt = "", priority = false }: { id: string; wi
 }
 
 export const Dot = ({ team }: { team: Pick<Team, "color"> }) => (
-  <span className="dot" style={{ background: team.color, border: "1px solid #fff4" }} aria-hidden="true" />
+  <span className="dot" style={{ background: team.color }} aria-hidden="true" />
 );
 
-export function SecH({ t, g, sub, id, style }: { t: string; g?: string; sub?: ReactNode; id?: string; style?: CSSProperties }) {
+/** Titolo di sezione: titolo + sottotitolo a sinistra, link "vedi tutto" a destra. */
+export function SecH({ t, g, sub, id, more, style }: { t: string; g?: string; sub?: ReactNode; id?: string; more?: { href: string; label: string }; style?: CSSProperties }) {
   return (
-    <>
-      <h2 id={id} style={style}>
-        {t}
-        {g ? (
-          <>
-            {" "}
-            <span className="g">{g}</span>
-          </>
-        ) : null}
-      </h2>
-      {sub ? <p className="sub">{sub}</p> : null}
-    </>
+    <div className="sh" style={style}>
+      <div>
+        <h2 id={id}>{g ? `${t} ${g}` : t}</h2>
+        {sub ? <p className="sub">{sub}</p> : null}
+      </div>
+      {more ? (
+        <Link className="link" href={more.href}>
+          {more.label}
+        </Link>
+      ) : null}
+    </div>
   );
 }
 
@@ -65,8 +65,12 @@ export function AwardChip({ w, teamOf }: { w: Award; teamOf: TeamOf }) {
   return (
     <span className="chip">
       {g ? <Dot team={g} /> : null}
-      <Link href={`/classe/${classSlug(w.cls)}`}>{w.cls}</Link> <b>+{w.pts}</b>{" "}
-      <span className="badge" title={w.kind}>
+      <Link href={`/classe/${classSlug(w.cls)}`}>{w.cls}</Link>
+      <b>
+        {w.pts > 0 ? "+" : ""}
+        {w.pts}
+      </b>
+      <span className="k" title={w.kind === "individuale" ? "punti individuali" : "punti collettivi"}>
         {w.kind === "individuale" ? "ind." : "coll."}
       </span>
     </span>
@@ -123,7 +127,7 @@ export function StatGrid({ items }: { items: [ReactNode, string][] }) {
     <div className="stats">
       {items.map(([v, l], i) => (
         <div className="stat" key={i}>
-          <b style={String(v).length > 8 ? { fontSize: 22, lineHeight: 1.2 } : undefined}>{v}</b>
+          <b style={String(v).length > 10 ? { fontSize: 19, lineHeight: 1.25 } : undefined}>{v}</b>
           <span>{l}</span>
         </div>
       ))}
@@ -172,3 +176,14 @@ export const Icon = ({ n, size = 24 }: { n: BadgeIcon; size?: number }) => (
 );
 
 export const ord = (n: number) => n + "°";
+
+/** Intestazione di pagina: occhiello, titolo grande, sottotitolo. */
+export function PageHead({ eyebrow, title, sub }: { eyebrow?: string; title: string; sub?: ReactNode }) {
+  return (
+    <header style={{ marginBottom: 28 }}>
+      {eyebrow ? <div className="eyebrow" style={{ marginBottom: 10 }}>{eyebrow}</div> : null}
+      <h1 className="page">{title}</h1>
+      {sub ? <p className="sub" style={{ marginTop: 10 }}>{sub}</p> : null}
+    </header>
+  );
+}

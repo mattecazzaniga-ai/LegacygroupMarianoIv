@@ -5,11 +5,19 @@ import { calEvents, statusOf } from "@/lib/calc/calendar";
 import { allClasses, sum, variation } from "@/lib/calc/core";
 import { CONFIG } from "@/lib/config";
 import { fmt, fmtS } from "@/lib/dates";
-import { chartColor, chartDash } from "@/lib/teams";
+import { chartColor } from "@/lib/teams";
 import type { CalEvent, Team } from "@/lib/types";
 import Countdown from "./Countdown";
 import type { Series } from "./LineChart";
 import { ActCard, AwardChip, Dot, EventCard, Icon, Logo, ord, StatGrid } from "./ui";
+
+function Var({ m, id, pos }: { m: Model; id: string; pos: number }) {
+  const d = variation(m.prevPos, id, pos);
+  if (d === null) return null;
+  if (d > 0) return <span className="var up" aria-label={`su di ${d}`}>▲ {d}</span>;
+  if (d < 0) return <span className="var down" aria-label={`giù di ${-d}`}>▼ {-d}</span>;
+  return <span className="var same" aria-label="stabile">=</span>;
+}
 
 export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
   const maxPts = Math.max(1, ...m.now.map((r) => r.pts));
@@ -25,17 +33,17 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
                 <span aria-hidden="true">{m.started ? r.pos : "–"}</span>
                 {m.started ? <span className="sr-only">{ord(r.pos)} posto:</span> : null}
               </div>
-              <Logo id={r.team.id} width={66} />
+              <Logo id={r.team.id} width={56} />
               <div>
                 <div className="nm">{r.team.name}</div>
                 <div className="mt">
-                  {m.started ? <Variation2 m={m} id={r.team.id} pos={r.pos} /> : null}
+                  {m.started ? <Var m={m} id={r.team.id} pos={r.pos} /> : null}
                   <span>{r.team.classes.length} classi</span>
-                  {detail && m.started && k > 0 && above > 0 ? <span>−{above} dalla squadra sopra</span> : null}
-                  {detail && m.started && r.pos === 1 && k === 0 && m.now[1] && r.pts > m.now[1].pts ? <span>+{r.pts - m.now[1].pts} sulla seconda</span> : null}
+                  {detail && m.started && k > 0 && above > 0 ? <span>−{above} dalla precedente</span> : null}
+                  {detail && m.started && k === 0 && m.now[1] && r.pts > m.now[1].pts ? <span>+{r.pts - m.now[1].pts} sulla seconda</span> : null}
                 </div>
                 <div className="bar" aria-hidden="true">
-                  <i style={{ width: `${r.pts > 0 ? Math.max(4, (r.pts / maxPts) * 100) : 2}%`, background: r.team.color }} />
+                  <i style={{ width: `${r.pts > 0 ? Math.max(3, (r.pts / maxPts) * 100) : 0}%`, background: chartColor(r.team) }} />
                 </div>
               </div>
               <div className="pt">
@@ -50,14 +58,6 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
   );
 }
 
-function Variation2({ m, id, pos }: { m: Model; id: string; pos: number }) {
-  const d = variation(m.prevPos, id, pos);
-  if (d === null) return <span className="var same">–</span>;
-  if (d > 0) return <span className="var up">▲ {d}</span>;
-  if (d < 0) return <span className="var down">▼ {-d}</span>;
-  return <span className="var same">=</span>;
-}
-
 export function Podium({ m }: { m: Model }) {
   if (!m.started) return null;
   const t = [m.now[1], m.now[0], m.now[2]];
@@ -65,13 +65,10 @@ export function Podium({ m }: { m: Model }) {
     <div className="podium" role="group" aria-label="Podio">
       {t.map((r) => (
         <Link key={r.team.id} className={`pod m${r.pos <= 3 ? r.pos : 3}`} href={`/squadra/${r.team.id}`}>
-          <Logo id={r.team.id} width={r === m.now[0] ? 124 : 96} />
-          <div className="rk">{r.pos}°</div>
+          <Logo id={r.team.id} width={r === m.now[0] ? 112 : 84} />
+          <div className="rk">{r.pos}° posto</div>
           <div className="nm">{r.team.name}</div>
-          <div className="pt">
-            {r.pts}
-            <small>punti</small>
-          </div>
+          <div className="pt">{r.pts}</div>
         </Link>
       ))}
     </div>
@@ -83,84 +80,86 @@ export function CountdownBlock({ m, startMs, endMs, nowMs, isFinal }: { m: Model
     const w = m.now.filter((r) => r.pos === 1 && r.pts > 0);
     return w.length ? (
       <div className="final">
-        <div className="eyebrow">Stagione conclusa</div>
-        <b>
-          {w.length > 1 ? "Vincono a pari merito: " : "Vince "}
-          {w.map((r) => r.team.name).join(" e ")}
-        </b>
-        <p className="sub" style={{ margin: "4px 0 0" }}>
-          {w[0].pts} punti. Grazie a tutte le classi.
-        </p>
+        <Logo id={w[0].team.id} width={64} />
+        <div>
+          <div className="eyebrow gold">Stagione conclusa</div>
+          <b>
+            {w.length > 1 ? "Pari merito: " : "Vince "}
+            {w.map((r) => r.team.name).join(" e ")}
+          </b>
+          <p className="sub" style={{ marginTop: 6 }}>
+            {w[0].pts} punti. Grazie a tutte le classi.
+          </p>
+        </div>
       </div>
     ) : (
       <div className="final">
-        <div className="eyebrow">Stagione conclusa</div>
-        <b>Grazie a tutti</b>
+        <div>
+          <div className="eyebrow gold">Stagione conclusa</div>
+          <b>Grazie a tutti</b>
+        </div>
       </div>
     );
   }
   const pct = Math.max(0, Math.min(100, ((nowMs - startMs) / (endMs - startMs)) * 100));
   return (
-    <>
+    <div>
       <Countdown endMs={endMs} />
-      <div className="bar" style={{ maxWidth: 420, marginTop: 12 }} role="progressbar" aria-label="Avanzamento della stagione" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
-        <i style={{ width: `${pct.toFixed(1)}%`, background: "var(--gold)" }} />
+      <div className="season">
+        <div className="track" role="progressbar" aria-label="Avanzamento della stagione" aria-valuenow={Math.round(pct)} aria-valuemin={0} aria-valuemax={100}>
+          <i style={{ width: `${pct.toFixed(1)}%` }} />
+        </div>
+        <span>fine {fmt(CONFIG.endDate)}</span>
       </div>
-      <p className="note" style={{ marginTop: 6 }}>
-        Fine della competizione: {fmt(CONFIG.endDate)}
-      </p>
-    </>
+    </div>
   );
 }
 
 const MEDALS = ["Oro", "Argento", "Bronzo"];
 export function WeekPodium({ m }: { m: Model }) {
   const top = m.week.filter((r) => r.pts > 0);
-  if (!top.length) return <p className="empty">Nessun punto assegnato negli ultimi 7 giorni: il podio si forma alla prossima attività.</p>;
+  if (!top.length) return <p className="empty">Nessun punto negli ultimi 7 giorni: il podio si forma alla prossima attività.</p>;
   const show = top.filter((r) => r.pos <= 3);
   return (
     <>
-      <div className="wk">
+      <ol className="wk">
         {show.map((r) => {
           const d = r.pts - r.prevW;
-          const ds =
-            r.prevW === 0 && r.pts > 0 ? "nuova entrata" : d > 0 ? `▲ +${d} vs settimana prima` : d < 0 ? `▼ ${d} vs settimana prima` : "= come la settimana prima";
+          const ds = r.prevW === 0 ? "nuova entrata" : d > 0 ? `▲ ${d} sulla settimana prima` : d < 0 ? `▼ ${-d} sulla settimana prima` : "come la settimana prima";
           return (
-            <Link key={r.team.id} className={`w m${r.pos}`} href={`/squadra/${r.team.id}`}>
-              <Logo id={r.team.id} width={50} />
-              <div>
-                <div className="medal">{MEDALS[r.pos - 1]}</div>
-                <div className="nm" style={{ fontSize: 20 }}>
-                  {r.team.name}
+            <li key={r.team.id}>
+              <Link className={`w m${r.pos}`} href={`/squadra/${r.team.id}`}>
+                <Logo id={r.team.id} width={40} />
+                <div>
+                  <div className="medal">{MEDALS[r.pos - 1]}</div>
+                  <div className="nm">{r.team.name}</div>
+                  <div className="mt">{ds}</div>
                 </div>
-                <div className="note" style={{ margin: 0 }}>
-                  {ds}
-                </div>
-              </div>
-              <div className="pt">
-                {r.pts}
-              </div>
-            </Link>
+                <div className="pt">{r.pts}</div>
+              </Link>
+            </li>
           );
         })}
-      </div>
-      <p className="note">Punti presi dal {fmtS(m.windows.W0)} a oggi. Il confronto è con i 7 giorni precedenti.</p>
+      </ol>
+      <p className="note">Punti dal {fmtS(m.windows.W0)} a oggi, confrontati con i 7 giorni precedenti.</p>
     </>
   );
 }
 
 export function MomentTeam({ m }: { m: Model }) {
   const r = m.week[0];
-  if (!r || !r.pts) return <p className="empty">Nessun punto assegnato negli ultimi 7 giorni.</p>;
+  if (!r || !r.pts) return <p className="empty">Nessun punto negli ultimi 7 giorni.</p>;
   const d = r.pts - r.prevW;
   return (
     <Link className="moment" href={`/squadra/${r.team.id}`}>
-      <Logo id={r.team.id} width={80} />
+      <Logo id={r.team.id} width={64} />
       <div>
         <div className="nm">{r.team.name}</div>
-        <div className="mt">+{r.pts} punti negli ultimi 7 giorni</div>
-        <div className="mt" style={{ marginTop: 2 }}>
-          {d > 0 ? "▲ +" + d : d < 0 ? "▼ " + d : "="} rispetto alla settimana prima
+        <div className="mt">
+          <span>+{r.pts} punti in 7 giorni</span>
+          <span className={d > 0 ? "up" : d < 0 ? "down" : "same"}>
+            {d > 0 ? "▲ " + d : d < 0 ? "▼ " + -d : "="} sulla settimana prima
+          </span>
         </div>
       </div>
     </Link>
@@ -173,14 +172,16 @@ export function MomentsList({ m, n }: { m: Model; n?: number }) {
     <ol className="tl">
       {M.map((x, i) => (
         <li className="e" key={i}>
-          <div className="d">{fmt(x.d)}</div>
-          <h3>{x.t}</h3>
-          <p>{x.s}</p>
+          <div className="d">{fmtS(x.d)}</div>
+          <div>
+            <h3>{x.t}</h3>
+            <p>{x.s}</p>
+          </div>
         </li>
       ))}
     </ol>
   ) : (
-    <p className="empty">I momenti importanti (sorpassi, record, traguardi) compariranno qui in automatico.</p>
+    <p className="empty">Sorpassi, record e traguardi compariranno qui in automatico.</p>
   );
 }
 
@@ -190,14 +191,12 @@ export function BadgesRow({ m, team }: { m: Model; team: Team }) {
     <div className="own" role="group" aria-label="Badge della squadra">
       {b.map((x) => (
         <span className="chip" key={x.id} title={x.rule}>
-          <Icon n={x.ic} size={16} /> {x.name}
+          <Icon n={x.ic} size={14} /> {x.name}
         </span>
       ))}
     </div>
   ) : (
-    <p className="empty" style={{ margin: 0 }}>
-      Nessun badge per ora.
-    </p>
+    <p className="empty">Nessun badge per ora.</p>
   );
 }
 
@@ -209,11 +208,11 @@ export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
     })
     .slice(0, 3);
   return list.length ? (
-    <>
+    <div className="list">
       {list.map((e) => (
         <EventCard key={e.id} e={e} today={m.today} teamOf={m.teamOf} />
       ))}
-    </>
+    </div>
   ) : (
     <p className="empty">Le prossime attività verranno annunciate qui.</p>
   );
@@ -222,20 +221,26 @@ export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
 export function Recent({ m, n }: { m: Model; n: number }) {
   const list = [...m.acts].reverse().slice(0, n);
   return list.length ? (
-    <>
+    <div className="list">
       {list.map((a) => (
         <ActCard key={a.id} a={a} teamOf={m.teamOf} />
       ))}
-    </>
+    </div>
   ) : (
-    <p className="empty">Nessuna attività registrata per ora. Qui compariranno le attività e i punti assegnati.</p>
+    <p className="empty">Nessuna attività registrata per ora.</p>
   );
 }
 
 export function MiniStats({ m }: { m: Model }) {
   const total = sum(m.acts.flatMap((a) => a.awards.map((w) => w.pts)));
   const withPts = new Set(m.acts.flatMap((a) => a.awards.map((w) => w.cls))).size;
-  const lead = m.started && m.now[0].pts > 0 ? m.now.filter((r) => r.pos === 1).map((r) => r.team.name).join(" e ") : "–";
+  const lead =
+    m.started && m.now[0].pts > 0
+      ? m.now
+          .filter((r) => r.pos === 1)
+          .map((r) => r.team.name)
+          .join(" e ")
+      : "–";
   return (
     <StatGrid
       items={[
@@ -249,7 +254,7 @@ export function MiniStats({ m }: { m: Model }) {
 }
 
 export function PowerBoard({ m }: { m: Model }) {
-  if (!m.power.some((r) => r.sc > 0)) return <p className="empty">Nessun punto negli ultimi 30 giorni: la forma recente si calcola dalle prossime attività.</p>;
+  if (!m.power.some((r) => r.sc > 0)) return <p className="empty">Nessun punto negli ultimi 30 giorni: la forma si calcola dalle prossime attività.</p>;
   return (
     <>
       <ol className="board">
@@ -259,19 +264,14 @@ export function PowerBoard({ m }: { m: Model }) {
             <li key={r.team.id}>
               <Link className="row" href={`/squadra/${r.team.id}`}>
                 <div className="pos">{r.pos}</div>
-                <Logo id={r.team.id} width={66} />
+                <Logo id={r.team.id} width={56} />
                 <div>
                   <div className="nm">{r.team.name}</div>
                   <div className="mt">
-                    {d > 0 ? (
-                      <span className="var up">▲ {d} sulla classifica</span>
-                    ) : d < 0 ? (
-                      <span className="var down">▼ {-d} sulla classifica</span>
-                    ) : (
-                      <span className="var same">= classifica</span>
-                    )}
-                    <span>{r.w} pt in 7 gg</span>
-                    <span>{r.m} pt dall&apos;8° al 30° gg</span>
+                    <span>
+                      {r.w} pt negli ultimi 7 gg · {r.m} dall&apos;8° al 30°
+                    </span>
+                    {d !== 0 ? <span className={d > 0 ? "var up" : "var down"}>{d > 0 ? `▲ ${d}` : `▼ ${-d}`} rispetto alla classifica</span> : null}
                   </div>
                 </div>
                 <div className="pt">
@@ -284,8 +284,7 @@ export function PowerBoard({ m }: { m: Model }) {
         })}
       </ol>
       <p className="note">
-        Power Ranking = 2 × punti degli ultimi 7 giorni + punti dall&apos;8° al 30° giorno. Misura la forma del momento ed è <b>solo indicativo</b>: la
-        classifica ufficiale resta quella generale.
+        Forma = 2 × punti degli ultimi 7 giorni + punti dall&apos;8° al 30° giorno. È solo indicativa: la classifica ufficiale è quella generale.
       </p>
     </>
   );
@@ -294,7 +293,7 @@ export function PowerBoard({ m }: { m: Model }) {
 export function Feed({ m, n }: { m: Model; n?: number }) {
   if (!m.hist.length) return <p className="empty">Il feed si riempie appena viene registrata la prima attività.</p>;
   return (
-    <div className="card feed">
+    <div className="list">
       {[...m.hist]
         .reverse()
         .slice(0, n ?? 999)
@@ -319,7 +318,7 @@ export function Feed({ m, n }: { m: Model; n?: number }) {
                 {gains.map((x) => (
                   <span className="chip" key={x.g.id}>
                     <Dot team={x.g} />
-                    <Link href={`/squadra/${x.g.id}`}>{x.g.name}</Link>{" "}
+                    <Link href={`/squadra/${x.g.id}`}>{x.g.name}</Link>
                     <b>
                       {x.v > 0 ? "+" : ""}
                       {x.v}
@@ -328,15 +327,25 @@ export function Feed({ m, n }: { m: Model; n?: number }) {
                 ))}
               </div>
               {ch.length ? (
-                <div className="mt">
-                  {ch.map((x) => `${x.d > 0 ? "▲" : "▼"} ${x.g.name} ${x.d > 0 ? "sale" : "scende"} al ${ord(x.p)} posto`).join(" · ")}
-                </div>
+                <p>
+                  {ch.map((x, i) => (
+                    <span key={x.g.id}>
+                      {i ? " · " : ""}
+                      <span className={x.d > 0 ? "up" : "down"}>{x.d > 0 ? "▲" : "▼"}</span> {x.g.name} {x.d > 0 ? "sale" : "scende"} al {ord(x.p)} posto
+                    </span>
+                  ))}
+                </p>
               ) : null}
-              <div className="chips">
-                {h.a.awards.map((w, i) => (
-                  <AwardChip key={i} w={w} teamOf={m.teamOf} />
-                ))}
-              </div>
+              <details style={{ marginTop: 8 }}>
+                <summary className="note" style={{ marginTop: 0, cursor: "pointer" }}>
+                  Punti per classe
+                </summary>
+                <div className="chips">
+                  {h.a.awards.map((w, i) => (
+                    <AwardChip key={i} w={w} teamOf={m.teamOf} />
+                  ))}
+                </div>
+              </details>
             </article>
           );
         })}
@@ -347,4 +356,6 @@ export function Feed({ m, n }: { m: Model; n?: number }) {
 /** Serie per i grafici: punti cumulati di ogni squadra. */
 export const dateLabels = (m: Model) => ["Inizio", ...m.acts.map((a) => fmtS(a.date))];
 export const teamSeries = (m: Model, list: Team[] = m.teams): Series[] =>
-  list.map((g) => ({ name: g.name, color: chartColor(g), dash: chartDash(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }));
+  list.map((g) => ({ name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }));
+/** Indice della squadra in testa (per mettere in evidenza la sua linea). */
+export const leaderIndex = (m: Model) => Math.max(0, m.teams.findIndex((t) => t.id === m.now[0].team.id));

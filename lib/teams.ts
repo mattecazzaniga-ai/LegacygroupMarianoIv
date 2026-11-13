@@ -26,8 +26,14 @@ export const TEAM_ALIASES: Record<string, string> = {
   Issohadores: "mariano-iv",
 };
 
-/** Colore usato nei grafici (il nero non si vedrebbe sul blu notte). */
-export const chartColor = (t: Pick<Team, "id" | "color">) => (t.id === "mamuthones" ? "#8895ab" : t.color);
-export const chartDash = (t: Pick<Team, "id">) => (t.id === "mamuthones" ? "5 4" : "");
+/**
+ * Colore della squadra nei segni dei grafici e nelle barre.
+ * Il nero non si vedrebbe sul blu notte; bronzo e rosso sono schiariti per avere
+ * almeno 4:1 di contrasto con lo sfondo (verificato con lo script della skill dataviz).
+ */
+const CHART: Record<string, string> = { mamuthones: "#8895ab", shardana: "#b97a44", "mariano-iv": "#e5484d" };
+export const chartColor = (t: Pick<Team, "id" | "color">) => CHART[t.id] ?? t.color;
+/** Grigio delle linee non in evidenza nei grafici. */
+export const MUTED_LINE = "#3b4c66";
 
 export const classSlug = (c: string) => c.toLowerCase();

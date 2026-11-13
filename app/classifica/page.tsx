@@ -1,5 +1,5 @@
 import { Board, Podium, PowerBoard } from "@/components/blocks";
-import { SecH } from "@/components/ui";
+import { PageHead, SecH } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -15,16 +15,16 @@ export default async function Classifica() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Classifica</h1>
-        <SecH t="Classifica" g="generale" sub={m.started ? "Le squadre con gli stessi punti hanno la stessa posizione." : "La competizione non è ancora iniziata: tutte le squadre sono a zero."} />
+        <PageHead
+          eyebrow={m.started ? `Dopo ${m.acts.length} attività` : "Stagione 2026/27"}
+          title="Classifica"
+          sub={m.started ? "A pari punti, stessa posizione. ▲▼ confronta con la classifica prima dell'ultima attività." : "La competizione non è ancora iniziata: tutte le squadre sono a zero."}
+        />
         <Podium m={m} />
         <Board m={m} detail />
-        <p className="sub" style={{ marginTop: 14 }}>
-          La variazione ▲▼ confronta la posizione con quella prima dell&apos;ultima attività.
-        </p>
       </section>
       <section>
-        <SecH t="Power" g="Ranking" sub="La forma del momento, non la classifica ufficiale." />
+        <SecH t="Power Ranking" sub="La forma del momento. Non sostituisce la classifica." />
         <PowerBoard m={m} />
       </section>
     </div>

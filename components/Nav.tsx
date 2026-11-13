@@ -73,10 +73,14 @@ export default function Nav() {
         </div>
       </nav>
       <div className={"ov" + (open ? " open" : "")} role="dialog" aria-modal="true" aria-label="Menu" hidden={!open}>
-        <button type="button" className="menu-btn x" ref={closeRef} onClick={() => setOpen(false)}>
-          Chiudi
-        </button>
-        <h2>Legacy Group</h2>
+        <div className="ov-h">
+          <span className="brand">
+            Legacy <b>Group</b>
+          </span>
+          <button type="button" className="menu-btn" ref={closeRef} onClick={() => setOpen(false)}>
+            Chiudi
+          </button>
+        </div>
         <div className="grid">
           {ROUTES.map(([r, l]) => (
             <Link key={r} href={r} className={r === path ? "on" : undefined} aria-current={cur(r)} onClick={() => setOpen(false)}>

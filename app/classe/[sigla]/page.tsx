@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { Logo, StatGrid } from "@/components/ui";
+import { Logo, SecH, StatGrid } from "@/components/ui";
 import { classPts } from "@/lib/calc/core";
 import { fmt } from "@/lib/dates";
 import { meta } from "@/lib/meta";
@@ -39,27 +39,24 @@ export default async function Classe({ params }: P) {
           ← {g.name}
         </Link>
         <div className="thead">
-          <Logo id={g.id} width={90} alt={`Stemma ${g.name}`} priority />
+          <Logo id={g.id} width={96} alt={`Stemma ${g.name}`} priority />
           <div>
-            <div className="eyebrow">{g.name}</div>
+            <div className="eyebrow">Classe · {g.name}</div>
             <h1>{c}</h1>
           </div>
         </div>
         <StatGrid
           items={[
             [v, "punti totali"],
-            [(v ? pos + "°" : "–") + " / " + g.classes.length, "nella squadra"],
+            [v ? `${pos}° su ${g.classes.length}` : "–", "nella squadra"],
             [ind, "punti individuali"],
             [col, "punti collettivi"],
           ]}
         />
       </section>
       <section>
-        <h2>
-          Storico <span className="g">punti</span>
-        </h2>
-        <p className="sub">Ogni assegnazione compare una sola volta.</p>
-        <div className="card">
+        <SecH t="Storico punti" sub="Ogni assegnazione compare una sola volta." />
+        <div className="list">
           {hist.length ? (
             hist.map(({ a, w }, i) => (
               <article className="act" key={i}>

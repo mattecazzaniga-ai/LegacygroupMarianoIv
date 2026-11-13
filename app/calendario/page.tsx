@@ -1,5 +1,5 @@
 import CalendarView from "@/components/CalendarView";
-import { SecH } from "@/components/ui";
+import { PageHead } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -11,8 +11,7 @@ export default async function Calendario() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Calendario</h1>
-        <SecH t="Calendario" sub="Attività programmate, in corso e concluse, con i punti assegnati." />
+        <PageHead eyebrow="Stagione 2026/27" title="Calendario" sub="Tocca un giorno per vedere le sue attività." />
         <CalendarView teams={m.teams} acts={m.acts} events={ds.events} today={m.today} />
       </section>
     </div>

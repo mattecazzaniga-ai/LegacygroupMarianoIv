@@ -2,12 +2,12 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BadgesRow, dateLabels } from "@/components/blocks";
 import LineChart from "@/components/LineChart";
-import { Logo, StatGrid } from "@/components/ui";
+import { Logo, SecH, StatGrid } from "@/components/ui";
 import { classPts, teamActs } from "@/lib/calc/core";
 import { rangePts } from "@/lib/calc/week";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
-import { chartColor, chartDash, classSlug, TEAMS } from "@/lib/teams";
+import { chartColor, classSlug, TEAMS } from "@/lib/teams";
 
 export const revalidate = 60;
 export const dynamicParams = false;
@@ -38,12 +38,15 @@ export default async function Squadra({ params }: P) {
           ← Tutte le squadre
         </Link>
         <div className="thead">
-          <Logo id={g.id} width={120} alt={`Stemma ${g.name}`} priority />
+          <Logo id={g.id} width={132} alt={`Stemma ${g.name}`} priority />
           <div>
             <div className="eyebrow">
               {m.started ? r.pos + "° in classifica" : "Squadra"} · {g.cname}
             </div>
             <h1>{g.name}</h1>
+            <div style={{ marginTop: 14 }}>
+              <BadgesRow m={m} team={g} />
+            </div>
           </div>
         </div>
         <StatGrid
@@ -54,28 +57,20 @@ export default async function Squadra({ params }: P) {
             [teamActs(g, m.acts, m.teamOf), "attività completate"],
           ]}
         />
-        <div style={{ marginTop: 14 }}>
-          <BadgesRow m={m} team={g} />
-        </div>
       </section>
       <section>
-        <h2>
-          Punti <span className="g">nel tempo</span>
-        </h2>
+        <SecH t="Punti nel tempo" sub={m.now[0].team.id === g.id ? "Andamento della squadra." : "Andamento della squadra a confronto con la prima in classifica."} />
         <LineChart
           label={`Punti cumulati di ${g.name}`}
           labels={dateLabels(m)}
           series={[
-            { name: g.name, color: chartColor(g), dash: chartDash(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] },
-            { name: "Prima in classifica", color: "#d4ad55", dash: "3 4", vals: [0, ...m.hist.map((h) => h.st[0].pts)] },
+            { name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] },
+            ...(m.now[0].team.id === g.id ? [] : [{ name: "Prima in classifica", color: "", ref: true, vals: [0, ...m.hist.map((h) => h.st[0].pts)] }]),
           ]}
         />
       </section>
       <section>
-        <h2>
-          Le <span className="g">classi</span>
-        </h2>
-        <p className="sub">{g.classes.length} classi. Tocca una classe per vedere il suo storico.</p>
+        <SecH t="Le classi" sub={`${g.classes.length} classi, ordinate per punti.`} />
         <div className="classes">
           {cl.map((x) => {
             const last = [...m.acts]
@@ -84,8 +79,13 @@ export default async function Squadra({ params }: P) {
               .slice(0, 2);
             return (
               <Link key={x.c} className="cc" href={`/classe/${classSlug(x.c)}`}>
-                <span className="tot">{x.t}</span>
-                <span className="code">{x.c}</span>
+                <div className="top">
+                  <span className="code">{x.c}</span>
+                  <span className="tot">
+                    {x.t}
+                    <small>pt</small>
+                  </span>
+                </div>
                 <div className="split">
                   <span>
                     Individuali <b>{x.i}</b>
@@ -101,9 +101,7 @@ export default async function Squadra({ params }: P) {
                     </div>
                   ))
                 ) : (
-                  <div className="last" style={{ color: "var(--muted)" }}>
-                    Ancora nessun punto
-                  </div>
+                  <div className="last none">Ancora nessun punto</div>
                 )}
               </Link>
             );

@@ -1,5 +1,5 @@
 import RivalryView from "@/components/RivalryView";
-import { SecH } from "@/components/ui";
+import { PageHead } from "@/components/ui";
 import { CONFIG } from "@/lib/config";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
@@ -12,8 +12,7 @@ export default async function Rivalita() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Rivalità</h1>
-        <SecH t="Rivalità" sub="Metti due squadre una contro l'altra." />
+        <PageHead eyebrow="Testa a testa" title="Rivalità" sub="Scegli due squadre e confrontale." />
         <RivalryView teams={m.teams} acts={m.acts} today={m.today} tiebreak={CONFIG.tiebreak} />
       </section>
     </div>

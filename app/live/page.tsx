@@ -1,5 +1,5 @@
 import { Feed, MomentsList, MomentTeam } from "@/components/blocks";
-import { SecH } from "@/components/ui";
+import { PageHead, SecH } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -11,19 +11,16 @@ export default async function Live() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Live</h1>
-        <SecH t="Live" sub="Gli ultimi punti assegnati e i cambi in classifica. Mai nomi di studenti: solo classi e squadre." />
-        <div className="card">
-          <MomentTeam m={m} />
+        <PageHead eyebrow="Aggiornato ogni minuto" title="Live" sub="Punti assegnati e cambi in classifica. Solo classi e squadre, mai nomi." />
+        <MomentTeam m={m} />
+      </section>
+      <section className="g2">
+        <div>
+          <SecH t="Ultimi aggiornamenti" />
+          <Feed m={m} n={30} />
         </div>
-      </section>
-      <section>
-        <SecH t="Ultimi" g="aggiornamenti" />
-        <Feed m={m} n={30} />
-      </section>
-      <section>
-        <SecH t="Legacy" g="Moment" sub="I momenti importanti, rilevati in automatico." />
-        <div className="card">
+        <div>
+          <SecH t="Legacy Moment" sub="Sorpassi, record e traguardi, rilevati in automatico." />
           <MomentsList m={m} />
         </div>
       </section>

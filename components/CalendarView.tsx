@@ -45,7 +45,7 @@ export default function CalendarView({ teams, acts, events, today }: { teams: Te
         <button type="button" onClick={() => go(-1)} aria-label="Mese precedente">
           ‹
         </button>
-        <button type="button" onClick={() => go(0)} style={{ padding: "0 10px", fontSize: 13 }}>
+        <button type="button" className="today" onClick={() => go(0)}>
           Oggi
         </button>
         <button type="button" onClick={() => go(1)} aria-label="Mese successivo">
@@ -69,33 +69,30 @@ export default function CalendarView({ teams, acts, events, today }: { teams: Te
             <button
               type="button"
               key={k}
-              className={"dy" + (k === today ? " t" : "") + (sel === k ? " on" : "")}
+              className={"dy" + (k === today ? " t" : "") + (sel === k ? " on" : "") + (es.length ? " has" : "")}
               aria-pressed={sel === k}
               aria-label={`${fmt(k)}${es.length ? ", " + es.length + (es.length === 1 ? " evento" : " eventi") : ""}${k === today ? ", oggi" : ""}`}
               onClick={() => setSel(sel === k ? "" : k)}
             >
-              {d}
-              <br />
-              {es.slice(0, 3).map((_, j) => (
-                <i key={j} />
-              ))}
+              <span>{d}</span>
+              <span className="dots" aria-hidden="true">
+                {es.slice(0, 3).map((_, j) => (
+                  <i key={j} />
+                ))}
+              </span>
             </button>
           );
         })}
       </div>
-      <h2 style={{ fontSize: 22 }}>
+      <div className="sh">
+        <h2 style={{ fontSize: 22 }}>{sel ? fmt(sel) : "Attività del mese"}</h2>
         {sel ? (
-          <>
-            {fmt(sel)}{" "}
-            <button type="button" className="btn ghost" onClick={() => setSel("")} style={{ fontSize: 13, padding: "4px 10px", marginLeft: 8 }}>
-              Tutto il mese
-            </button>
-          </>
-        ) : (
-          "Eventi del mese"
-        )}
-      </h2>
-      <div className="card" style={{ marginTop: 10 }}>
+          <button type="button" className="btn ghost" onClick={() => setSel("")} style={{ minHeight: 36, padding: "6px 12px", fontSize: 14 }}>
+            Tutto il mese
+          </button>
+        ) : null}
+      </div>
+      <div className="list">
         {list.length ? list.map((e) => <EventCard key={e.id} e={e} today={today} teamOf={teamOf} />) : <p className="empty">Nessun evento in programma per questo periodo.</p>}
       </div>
     </>

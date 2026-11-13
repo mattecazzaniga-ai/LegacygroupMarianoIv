@@ -1,35 +1,43 @@
 import Link from "next/link";
-import { Board, CountdownBlock, MiniStats, MomentTeam, Recent, Upcoming, WeekPodium } from "@/components/blocks";
-import { SecH } from "@/components/ui";
-import { fmt } from "@/lib/dates";
+import { Board, CountdownBlock, dateLabels, leaderIndex, MiniStats, MomentsList, MomentTeam, Recent, teamSeries, Upcoming, WeekPodium } from "@/components/blocks";
+import LineChart from "@/components/LineChart";
+import { Logo, SecH } from "@/components/ui";
 import { getSite } from "@/lib/site";
 
 export const revalidate = 60;
 
 export default async function Home() {
   const { m, ds, startMs, endMs, nowMs, isFinal } = await getSite();
-  const ms = m.moments[0];
   return (
     <>
       <header className="hero">
         <div className="wrap">
-          <div className="eyebrow">School Year 2026–2027</div>
-          <h1>Legacy Group</h1>
-          <div className="where">
-            Mariano Quarto<span aria-hidden="true">◆</span>Oristano
+          <div className="hero-top">
+            <div>
+              <div className="eyebrow">Istituto Mariano IV · Oristano · 2026/27</div>
+              <h1>
+                Legacy <span>Group</span>
+              </h1>
+              <p className="tag">Sei squadre, quarantatré classi, un anno per lasciare il segno.</p>
+            </div>
+            <nav className="crests" aria-label="Le squadre">
+              {m.teams.map((t) => (
+                <Link key={t.id} href={`/squadra/${t.id}`} title={t.name}>
+                  <Logo id={t.id} width={52} alt={t.name} sizes="(min-width: 960px) 128px, 52px" />
+                </Link>
+              ))}
+            </nav>
           </div>
-          <p className="tag">Six Teams. One Legacy.</p>
-          <CountdownBlock m={m} startMs={startMs} endMs={endMs} nowMs={nowMs} isFinal={isFinal} />
-          <div className="quick">
-            <Link className="btn" href="/classifica">
-              Classifica
-            </Link>
-            <Link className="btn ghost" href="/live">
-              Live
-            </Link>
-            <Link className="btn ghost" href="/calendario">
-              Calendario
-            </Link>
+          <div className="hero-foot">
+            <CountdownBlock m={m} startMs={startMs} endMs={endMs} nowMs={nowMs} isFinal={isFinal} />
+            <div className="quick">
+              <Link className="btn" href="/classifica">
+                Classifica
+              </Link>
+              <Link className="btn ghost" href="/calendario">
+                Calendario
+              </Link>
+            </div>
           </div>
         </div>
       </header>
@@ -38,58 +46,43 @@ export default async function Home() {
           <SecH
             id="h-classifica"
             t="Classifica"
-            g="generale"
-            sub={m.started ? m.acts.length + (m.acts.length === 1 ? " attività giocata" : " attività giocate") : "Si parte da zero: la prima attività verrà annunciata qui."}
+            sub={m.started ? `Dopo ${m.acts.length} ${m.acts.length === 1 ? "attività" : "attività"}.` : "Si parte da zero: tutte le squadre a pari punti."}
+            more={{ href: "/classifica", label: "Dettagli" }}
           />
           <Board m={m} />
-          <p style={{ marginTop: 14 }}>
-            <Link className="btn ghost" href="/classifica">
-              Classifica completa →
-            </Link>
-          </p>
-        </section>
-        <section>
-          <SecH t="Podio della" g="settimana" sub="Le tre squadre con più punti negli ultimi 7 giorni." />
-          <WeekPodium m={m} />
         </section>
         <section className="g2">
           <div>
-            <SecH t="Squadra del" g="momento" sub="Chi sta andando più forte." />
-            <div className="card">
-              <MomentTeam m={m} />
-            </div>
-            <SecH t="Legacy" g="Moment" sub="L'ultimo momento importante." style={{ marginTop: 22 }} />
-            <div className="card">
-              {ms ? (
-                <div className="act">
-                  <div className="d">{fmt(ms.d)}</div>
-                  <h3>{ms.t}</h3>
-                  <p>{ms.s}</p>
-                </div>
-              ) : (
-                <p className="empty">Sorpassi, record e traguardi compariranno qui.</p>
-              )}
-            </div>
+            <SecH t="Podio della settimana" sub="Chi ha fatto più punti negli ultimi 7 giorni." />
+            <WeekPodium m={m} />
           </div>
           <div>
-            <SecH t="Prossime" g="attività" sub="In arrivo." />
-            <div className="card">
-              <Upcoming m={m} events={ds.events} />
-            </div>
-            <SecH t="Ultime" g="attività" sub="Le più recenti, con i punti assegnati." style={{ marginTop: 22 }} />
-            <div className="card">
-              <Recent m={m} n={2} />
-            </div>
+            <SecH t="Squadra del momento" />
+            <MomentTeam m={m} />
+            <div className="spacer" />
+            <SecH t="Legacy Moment" more={m.moments.length ? { href: "/live", label: "Tutti" } : undefined} />
+            <MomentsList m={m} n={3} />
+          </div>
+        </section>
+        {m.hist.length ? (
+          <section>
+            <SecH t="La corsa" sub="Punti accumulati attività dopo attività. Tocca una squadra per seguirla." more={{ href: "/statistiche", label: "Statistiche" }} />
+            <LineChart mode="focus" focus={leaderIndex(m)} label="Punti cumulati per squadra" labels={dateLabels(m)} series={teamSeries(m)} />
+          </section>
+        ) : null}
+        <section className="g2">
+          <div>
+            <SecH t="Prossime attività" more={{ href: "/calendario", label: "Calendario" }} />
+            <Upcoming m={m} events={ds.events} />
+          </div>
+          <div>
+            <SecH t="Ultimi punti" more={{ href: "/attivita", label: "Registro" }} />
+            <Recent m={m} n={2} />
           </div>
         </section>
         <section>
-          <SecH t="Statistiche" sub="La competizione in numeri." />
+          <SecH t="In numeri" more={{ href: "/statistiche", label: "Statistiche" }} />
           <MiniStats m={m} />
-          <p style={{ marginTop: 14 }}>
-            <Link className="btn ghost" href="/statistiche">
-              Tutte le statistiche →
-            </Link>
-          </p>
         </section>
       </div>
     </>

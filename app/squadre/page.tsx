@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Logo } from "@/components/ui";
+import { Logo, PageHead } from "@/components/ui";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
@@ -15,28 +15,28 @@ export default async function Squadre() {
   return (
     <div className="wrap">
       <section>
-        <h1 className="sr-only">Le squadre</h1>
-        <h2>
-          Le <span className="g">squadre</span>
-        </h2>
-        <p className="sub">Tocca una squadra per vedere le sue classi.</p>
+        <PageHead eyebrow="Sei squadre · 43 classi" title="Le squadre" sub="Ogni classe gioca per una squadra. Apri una squadra per vedere le sue classi." />
         <ul className="teams">
           {m.teams.map((g) => {
             const r = m.now.find((x) => x.team.id === g.id)!;
             return (
               <li key={g.id}>
-                <Link className="tcard" style={{ ["--c" as string]: g.color }} href={`/squadra/${g.id}`}>
-                  <Logo id={g.id} width={86} />
+                <Link className="tcard" href={`/squadra/${g.id}`}>
+                  <Logo id={g.id} width={72} />
                   <div>
                     <div className="nm">{g.name}</div>
                     <div className="mt">
-                      <span>{g.cname}</span>
+                      <span className="swatch">
+                        <span className="dot" style={{ background: g.color }} aria-hidden="true" />
+                        {g.cname}
+                      </span>
                       <span>{g.classes.length} classi</span>
+                      {m.started ? <span>{r.pos}° posto</span> : null}
                     </div>
-                    <div className="mt" style={{ marginTop: 4 }}>
-                      {m.started ? r.pos + "° posto · " : ""}
-                      <b style={{ color: "var(--gold)" }}>{r.pts} punti</b>
-                    </div>
+                  </div>
+                  <div className="pt">
+                    {r.pts}
+                    <small>punti</small>
                   </div>
                 </Link>
               </li>
