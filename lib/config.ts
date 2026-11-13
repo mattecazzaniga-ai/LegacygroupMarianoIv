@@ -44,13 +44,3 @@ export const SITE = {
   description:
     "Legacy Group – Istituto Mariano IV, Oristano. Sei squadre, 43 classi: classifica, punti, attività e statistiche dell'anno scolastico 2026–2027.",
 };
-
-/** Scala per le sfide tra squadre (pagina Regolamento). */
-export const SCALE: [string, number][] = [
-  ["1° posto", 10],
-  ["2° posto", 8],
-  ["3° posto", 6],
-  ["4° posto", 4],
-  ["5° posto", 2],
-  ["6° posto", 1],
-];

@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { Board, CountdownBlock, dateLabels, leaderIndex, MiniStats, MomentsList, MomentTeam, Recent, teamSeries, Upcoming, WeekPodium } from "@/components/blocks";
-import LineChart from "@/components/LineChart";
+import { Board, CountdownBlock, MomentsList, Upcoming, WeekPodium } from "@/components/blocks";
 import { Logo, SecH } from "@/components/ui";
 import { getSite } from "@/lib/site";
 
+/** La pagina si rigenera ogni 60 secondi: la classifica segue il foglio da sola. */
 export const revalidate = 60;
 
 export default async function Home() {
@@ -31,8 +31,8 @@ export default async function Home() {
           <div className="hero-foot">
             <CountdownBlock m={m} startMs={startMs} endMs={endMs} nowMs={nowMs} isFinal={isFinal} />
             <div className="quick">
-              <Link className="btn" href="/classifica">
-                Classifica
+              <Link className="btn" href="/regolamento">
+                Come funziona
               </Link>
               <Link className="btn ghost" href="/calendario">
                 Calendario
@@ -42,14 +42,17 @@ export default async function Home() {
         </div>
       </header>
       <div className="wrap">
-        <section aria-labelledby="h-classifica">
+        <section id="classifica" aria-labelledby="h-classifica" style={{ scrollMarginTop: 64 }}>
           <SecH
             id="h-classifica"
-            t="Classifica"
-            sub={m.started ? `Dopo ${m.acts.length} ${m.acts.length === 1 ? "attività" : "attività"}.` : "Si parte da zero: tutte le squadre a pari punti."}
-            more={{ href: "/classifica", label: "Dettagli" }}
+            t="Classifica generale"
+            sub={
+              m.started
+                ? `Dopo ${m.acts.length} attività. A pari punti, stessa posizione; ▲▼ confronta con la classifica prima dell'ultima attività.`
+                : "Si parte da zero: tutte le squadre a pari punti. La classifica si aggiorna da sola a ogni nuovo punteggio."
+            }
           />
-          <Board m={m} />
+          <Board m={m} detail />
         </section>
         <section className="g2">
           <div>
@@ -57,32 +60,13 @@ export default async function Home() {
             <WeekPodium m={m} />
           </div>
           <div>
-            <SecH t="Squadra del momento" />
-            <MomentTeam m={m} />
-            <div className="spacer" />
-            <SecH t="Legacy Moment" more={m.moments.length ? { href: "/live", label: "Tutti" } : undefined} />
-            <MomentsList m={m} n={3} />
-          </div>
-        </section>
-        {m.hist.length ? (
-          <section>
-            <SecH t="La corsa" sub="Punti accumulati attività dopo attività. Tocca una squadra per seguirla." more={{ href: "/statistiche", label: "Statistiche" }} />
-            <LineChart mode="focus" focus={leaderIndex(m)} label="Punti cumulati per squadra" labels={dateLabels(m)} series={teamSeries(m)} />
-          </section>
-        ) : null}
-        <section className="g2">
-          <div>
-            <SecH t="Prossime attività" more={{ href: "/calendario", label: "Calendario" }} />
-            <Upcoming m={m} events={ds.events} />
-          </div>
-          <div>
-            <SecH t="Ultimi punti" more={{ href: "/attivita", label: "Registro" }} />
-            <Recent m={m} n={2} />
+            <SecH t="Legacy Moment" sub="Sorpassi, record e traguardi, rilevati in automatico." />
+            <MomentsList m={m} n={4} />
           </div>
         </section>
         <section>
-          <SecH t="In numeri" more={{ href: "/statistiche", label: "Statistiche" }} />
-          <MiniStats m={m} />
+          <SecH t="Prossimi appuntamenti" more={{ href: "/calendario", label: "Calendario" }} />
+          <Upcoming m={m} events={ds.events} />
         </section>
       </div>
     </>

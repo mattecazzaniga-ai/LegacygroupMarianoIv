@@ -125,8 +125,9 @@ python3 scripts/modello.py  # rigenera il foglio modello .xlsx
 ```
 
 Struttura:
-- `lib/calc/` – tutti i calcoli come funzioni pure: classifica e pari merito, spareggio, variazioni, storico, settimana, power ranking, record, badge, Legacy Moment, calendario.
+- `lib/calc/` – tutti i calcoli come funzioni pure: classifica e pari merito, spareggio, variazioni, storico, settimana, record, badge, Legacy Moment, calendario.
 - `lib/data/` – lettura e validazione del foglio.
 - `app/` – pagine (Next.js App Router), rigenerate ogni 60 s.
-- `components/` – interfaccia; grafici, filtri, calendario, rivalità e countdown sono le uniche parti eseguite nel browser.
+- `components/` – interfaccia; grafici, statistiche, calendario, rivalità, menu e countdown sono le uniche parti eseguite nel browser.
+- Pagine: Home (con la classifica generale), Squadre, Statistiche, Rivalità, Hall of Fame, Calendario, Regolamento. I vecchi indirizzi /classifica, /live e /attivita reindirizzano a Home e Calendario.
 - `tests/` e `fixtures/` – test e dati di prova (mai usati dal sito pubblicato).

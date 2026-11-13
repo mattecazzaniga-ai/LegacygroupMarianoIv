@@ -116,18 +116,6 @@ h3.h{font-size:15px;font-weight:600;color:var(--text);margin-bottom:10px}
 .var{font-weight:600;font-size:12px;font-variant-numeric:tabular-nums}
 .up{color:var(--up)}.down{color:var(--down)}.same{color:var(--muted)}
 
-/* podio */
-.podium{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end;margin-bottom:24px}
-.pod{display:flex;flex-direction:column;align-items:center;text-align:center;min-width:0;padding:16px 6px 14px;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);position:relative}
-.pod::before{content:"";position:absolute;top:-1px;left:20%;right:20%;height:2px;border-radius:0 0 2px 2px;background:var(--m)}
-.pod.m1{--m:var(--gold);padding-top:22px;padding-bottom:20px}
-.pod.m2{--m:var(--silver)} .pod.m3{--m:var(--bronze)}
-.pod img{width:56px;height:auto;margin-bottom:10px}
-.pod.m1 img{width:78px}
-.pod .rk{font:600 12px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--m)}
-.pod .nm{font-size:15px;margin-top:4px;letter-spacing:.01em;hyphens:auto}
-.pod .pt{text-align:center;font-size:28px;margin-top:8px}
-
 /* settimana */
 .wk{list-style:none;padding:0;display:grid;gap:8px}
 .wk .w{display:grid;grid-template-columns:40px minmax(0,1fr) auto;gap:14px;align-items:center;padding:12px 14px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
@@ -207,9 +195,6 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .tbl td:last-child,.tbl th:last-child{padding-right:0}
 .tbl .tn{display:flex;gap:8px;align-items:center}
 .scroll{overflow-x:auto}
-.scale td{padding:12px 0;border-bottom:1px solid var(--line)}
-.scale tr:last-child td{border-bottom:0}
-.scale td:last-child{text-align:right;font-weight:700;font-size:18px}
 
 /* barre orizzontali (quote) */
 .share{display:flex;flex-direction:column;gap:12px}
@@ -253,6 +238,17 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .bd h3{font-size:16px;font-weight:600}
 .bd p{font-size:13px;color:var(--text-2);margin-top:2px}
 .own{margin-top:10px;display:flex;flex-wrap:wrap;gap:6px}
+
+/* albo d'oro */
+.gold-roll{display:grid;gap:1px;background:var(--line);border:1px solid rgba(216,178,94,.4);border-radius:var(--r);overflow:hidden}
+.gold-roll>div{background:var(--surface);padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.gold-roll b{font-family:var(--display);font-weight:800;font-size:28px;line-height:1.05;text-transform:uppercase;letter-spacing:.02em}
+.gold-roll .muted{color:var(--muted);font-size:13px}
+.gold-roll .win{flex-direction:row;align-items:center;gap:16px}
+.gold-roll .win>div{display:flex;flex-direction:column;gap:4px}
+.gold-roll .win img{width:64px;height:auto;flex:none}
+.gold-roll .prize span:last-child{color:var(--text);font-size:15px}
+@media(min-width:720px){.gold-roll{grid-template-columns:auto 1fr auto}.gold-roll>div{padding:18px 22px;justify-content:center}}
 
 /* rivalità */
 .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:10px;align-items:center;text-align:center;margin:8px 0 18px}
@@ -306,11 +302,29 @@ table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
 .st.annullata{color:var(--down);border-color:rgba(239,127,127,.35)}
 
 /* regolamento */
-.rules ol{padding-left:0;list-style:none;counter-reset:r}
-.rules li{counter-increment:r;display:grid;grid-template-columns:36px minmax(0,1fr);gap:8px;padding:14px 0;border-top:1px solid var(--line);color:var(--text-2)}
-.rules li:first-child{border-top:0;padding-top:0}
-.rules li::before{content:counter(r,decimal-leading-zero);font-family:var(--display);font-weight:800;font-size:20px;color:var(--gold);line-height:1.2}
-.rules li b{color:var(--text);font-weight:600}
+.toc{margin:0 0 8px;padding:14px 16px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.toc ol{list-style:none;padding:0;display:flex;flex-wrap:wrap;gap:6px 18px;counter-reset:t}
+.toc li{counter-increment:t;font-size:14px}
+.toc li::before{content:counter(t,decimal-leading-zero) " ";color:var(--muted);font-variant-numeric:tabular-nums}
+.toc a{color:var(--text-2)}
+.toc a:hover{color:var(--text)}
+.reg article{display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px 12px;padding:28px 0;border-bottom:1px solid var(--line);scroll-margin-top:72px}
+.reg article:last-child{border-bottom:0}
+.reg .n{font-family:var(--display);font-weight:800;font-size:22px;line-height:1.3;color:var(--gold);font-variant-numeric:tabular-nums}
+.reg h2{font-size:24px;margin-bottom:10px}
+.reg p{color:var(--text-2);max-width:68ch;margin-top:10px}
+.reg h2+p{margin-top:0}
+.reg p b{color:var(--text);font-weight:600}
+.reg a{color:var(--text);text-decoration:underline;text-decoration-color:rgba(216,178,94,.6);text-underline-offset:3px}
+.reg a:hover{text-decoration-color:var(--gold)}
+.bul{margin:10px 0 0;padding:0;list-style:none;max-width:68ch}
+.bul li{position:relative;padding:5px 0 5px 18px;color:var(--text-2)}
+.bul li::before{content:"";position:absolute;left:2px;top:15px;width:6px;height:6px;border-radius:50%;background:var(--gold)}
+.teamlist{list-style:none;padding:0;margin:14px 0 0;display:grid;gap:0;max-width:560px;border-top:1px solid var(--line)}
+.teamlist li{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--line);font-size:15px}
+.teamlist a{text-decoration:none!important;font-weight:600}
+.teamlist .muted{margin-left:auto;color:var(--muted);font-size:13px;white-space:nowrap}
+@media(min-width:720px){.reg article{grid-template-columns:72px minmax(0,1fr);padding:36px 0}.reg .n{font-size:28px}.reg h2{font-size:28px}}
 
 /* controllo */
 .issue{border-left:3px solid var(--down);padding:10px 12px;background:var(--surface);border-radius:0 8px 8px 0;margin-top:8px;font-size:14px}
@@ -332,7 +346,6 @@ footer b{color:var(--text);font-weight:600}
   .pos{font-size:36px}
   .nm{font-size:26px}
   .pt{font-size:40px}
-  .pod img{width:84px}.pod.m1 img{width:112px}.pod .nm{font-size:22px}.pod .pt{font-size:36px}
   .wk{grid-template-columns:repeat(3,1fr)}
   .recs{grid-template-columns:1fr 1fr}
   .bdg{grid-template-columns:1fr 1fr}

@@ -3,6 +3,14 @@ const nextConfig = {
   reactStrictMode: true,
   distDir: process.env.NEXT_DIST_DIR || ".next",
   poweredByHeader: false,
+  /** Le vecchie pagine eliminate portano dove ora si trova il loro contenuto. */
+  async redirects() {
+    return [
+      { source: "/classifica", destination: "/#classifica", permanent: true },
+      { source: "/live", destination: "/", permanent: true },
+      { source: "/attivita", destination: "/calendario", permanent: true },
+    ];
+  },
   async headers() {
     return [
       {

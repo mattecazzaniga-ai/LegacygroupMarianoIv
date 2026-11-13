@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { standings, teamOfMap } from "@/lib/calc/core";
-import { powerRows, rangePts, weekRows, windows } from "@/lib/calc/week";
+import { teamOfMap } from "@/lib/calc/core";
+import { rangePts, weekRows, windows } from "@/lib/calc/week";
 import { act, C, T, teams } from "./helpers";
 
 const teamOf = teamOfMap(teams);
@@ -8,7 +8,7 @@ const today = "2026-11-13";
 
 describe("podio della settimana", () => {
   it("finestre: ultimi 7 giorni da oggi−7, precedenti da oggi−14 a oggi−7 escluso", () => {
-    expect(windows(today)).toEqual({ W0: "2026-11-06", W1: "2026-10-30", D30: "2026-10-14" });
+    expect(windows(today)).toEqual({ W0: "2026-11-06", W1: "2026-10-30" });
   });
 
   it("conta solo le attività degli ultimi 7 giorni e le confronta con i 7 precedenti", () => {
@@ -38,32 +38,8 @@ describe("podio della settimana", () => {
   });
 });
 
-describe("power ranking", () => {
-  const acts = [
-    act("2026-10-13", [[C("mariano-iv"), 100]]), // oltre i 30 giorni: escluso
-    act("2026-10-20", [[C("eleonora"), 10]]), // giorni 8–30
-    act("2026-11-10", [[C("shardana"), 6]]), // ultimi 7 giorni
-    act("2026-11-11", [[C("eleonora"), 1]]), // ultimi 7 giorni
-  ];
-  const official = standings(teams, acts, teamOf, "ultima");
-  const pr = powerRows(teams, acts, teamOf, official, today);
-  const get = (id: string) => pr.find((r) => r.team.id === id)!;
-
-  it("forma = 2 × punti ultimi 7 giorni + punti dall'8° al 30° giorno", () => {
-    expect(get("eleonora").sc).toBe(2 * 1 + 10);
-    expect(get("eleonora").w).toBe(1);
-    expect(get("eleonora").m).toBe(10);
-    expect(get("shardana").sc).toBe(12);
-    expect(get("mariano-iv").sc).toBe(0);
-  });
-
-  it("parità di forma = stessa posizione; resta separato dalla classifica ufficiale", () => {
-    expect(get("eleonora").pos).toBe(1);
-    expect(get("shardana").pos).toBe(1);
-    expect(get("mariano-iv").off).toBe(1); // in classifica ufficiale è prima
-    expect(get("mariano-iv").pos).toBe(3);
-  });
-
+describe("intervalli", () => {
+  const acts = [act("2026-10-20", [[C("eleonora"), 10]]), act("2026-11-11", [[C("eleonora"), 1]])];
   it("rangePts usa intervalli [da, a)", () => {
     expect(rangePts(T.eleonora, acts, teamOf, "2026-10-20", "2026-11-11")).toBe(10);
     expect(rangePts(T.eleonora, acts, teamOf, "2026-10-20")).toBe(11);

@@ -5,20 +5,17 @@ import { useEffect, useRef, useState } from "react";
 
 export const ROUTES: [string, string][] = [
   ["/", "Home"],
-  ["/classifica", "Classifica"],
-  ["/live", "Live"],
   ["/squadre", "Squadre"],
   ["/statistiche", "Statistiche"],
   ["/rivalita", "Rivalità"],
   ["/hall-of-fame", "Hall of Fame"],
   ["/calendario", "Calendario"],
-  ["/attivita", "Attività"],
   ["/regolamento", "Regolamento"],
 ];
 const BNAV: [string, string][] = [
   ["/", "Home"],
-  ["/classifica", "Classifica"],
-  ["/live", "Live"],
+  ["/squadre", "Squadre"],
+  ["/statistiche", "Statistiche"],
   ["/calendario", "Calendario"],
 ];
 

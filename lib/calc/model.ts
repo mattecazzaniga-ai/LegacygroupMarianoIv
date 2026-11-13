@@ -4,7 +4,7 @@ import { badgesOf, type BadgeInput } from "./badges";
 import { history, previousPositions, standings, teamOfMap, type TeamOf } from "./core";
 import { moments } from "./moments";
 import { records } from "./records";
-import { powerRows, weekRows, windows } from "./week";
+import { weekRows, windows } from "./week";
 
 export interface ModelInput {
   teams: Team[];
@@ -19,7 +19,6 @@ export function buildModel({ teams, acts, tiebreak, today }: ModelInput) {
   const prevPos = previousPositions(teams, acts, teamOf, tiebreak);
   const hist = history(teams, acts, teamOf, tiebreak);
   const week = weekRows(teams, acts, teamOf, tiebreak, today);
-  const power = powerRows(teams, acts, teamOf, now, today);
   const badgeInput: BadgeInput = { acts, hist, now, week, teams };
   return {
     teams,
@@ -31,7 +30,6 @@ export function buildModel({ teams, acts, tiebreak, today }: ModelInput) {
     prevPos,
     hist,
     week,
-    power,
     windows: windows(today),
     records: records(teams, acts, teamOf, hist),
     moments: moments(teams, acts, teamOf, hist),

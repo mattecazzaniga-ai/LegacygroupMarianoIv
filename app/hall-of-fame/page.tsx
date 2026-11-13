@@ -1,18 +1,52 @@
 import Link from "next/link";
 import { Dot, Icon, Logo, PageHead, SecH } from "@/components/ui";
 import { BADGES } from "@/lib/calc/badges";
+import { CONFIG } from "@/lib/config";
+import { fmt } from "@/lib/dates";
 import { meta } from "@/lib/meta";
 import { getSite } from "@/lib/site";
 
 export const revalidate = 60;
-export const metadata = meta("Hall of Fame", "I record della stagione e gli 8 badge di Legacy Group, aggiornati in automatico dai punti.", "/hall-of-fame");
+export const metadata = meta("Hall of Fame", "L'albo d'oro di Legacy Group: squadra vincitrice, record della stagione e riconoscimenti.", "/hall-of-fame");
 
 export default async function Hall() {
-  const { m } = await getSite();
+  const { m, isFinal } = await getSite();
+  const winners = isFinal ? m.now.filter((r) => r.pos === 1 && r.pts > 0) : [];
   return (
     <div className="wrap">
       <section>
-        <PageHead eyebrow="Record della stagione" title="Hall of Fame" sub="I primati di squadre e classi, aggiornati in automatico." />
+        <PageHead eyebrow="Albo d'oro" title="Hall of Fame" sub="I vincitori, i record e i riconoscimenti di Legacy Group." />
+        <div className="gold-roll">
+          <div className="ed">
+            <span className="eyebrow">Edizione</span>
+            <b>2026/27</b>
+          </div>
+          {winners.length ? (
+            <div className="win">
+              <Logo id={winners[0].team.id} width={64} />
+              <div>
+                <span className="eyebrow gold">{winners.length > 1 ? "Vincitrici a pari merito" : "Squadra vincitrice"}</span>
+                <b>{winners.map((r) => r.team.name).join(" e ")}</b>
+                <span className="muted">{winners[0].pts} punti</span>
+              </div>
+            </div>
+          ) : (
+            <div className="win">
+              <div>
+                <span className="eyebrow">Squadra vincitrice</span>
+                <b>In corso</b>
+                <span className="muted">Sarà proclamata al termine della competizione, il {fmt(CONFIG.endDate)}.</span>
+              </div>
+            </div>
+          )}
+          <div className="prize">
+            <span className="eyebrow">Premio finale</span>
+            <span>Sarà comunicato successivamente.</span>
+          </div>
+        </div>
+      </section>
+      <section>
+        <SecH t="Record della stagione" sub="I primati di squadre e classi, aggiornati in automatico." />
         {m.records.length ? (
           <ul className="recs" style={{ listStyle: "none", padding: 0 }}>
             {m.records.map((r) => (
@@ -34,7 +68,7 @@ export default async function Hall() {
         )}
       </section>
       <section>
-        <SecH t="Badge" sub="Otto riconoscimenti automatici: si conquistano e si perdono con i punti." />
+        <SecH t="Riconoscimenti" sub="Otto badge automatici: si conquistano e si perdono con i punti." />
         <ul className="bdg" style={{ listStyle: "none", padding: 0 }}>
           {BADGES.map((b) => {
             const own = m.teams.filter((g) => m.badgesOf(g).some((x) => x.id === b.id));

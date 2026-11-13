@@ -2,14 +2,13 @@
 import Link from "next/link";
 import type { Model } from "@/lib/calc/model";
 import { calEvents, statusOf } from "@/lib/calc/calendar";
-import { allClasses, sum, variation } from "@/lib/calc/core";
+import { variation } from "@/lib/calc/core";
 import { CONFIG } from "@/lib/config";
 import { fmt, fmtS } from "@/lib/dates";
 import { chartColor } from "@/lib/teams";
 import type { CalEvent, Team } from "@/lib/types";
 import Countdown from "./Countdown";
-import type { Series } from "./LineChart";
-import { ActCard, AwardChip, Dot, EventCard, Icon, Logo, ord, StatGrid } from "./ui";
+import { EventCard, Icon, Logo, ord } from "./ui";
 
 function Var({ m, id, pos }: { m: Model; id: string; pos: number }) {
   const d = variation(m.prevPos, id, pos);
@@ -55,23 +54,6 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
         );
       })}
     </ol>
-  );
-}
-
-export function Podium({ m }: { m: Model }) {
-  if (!m.started) return null;
-  const t = [m.now[1], m.now[0], m.now[2]];
-  return (
-    <div className="podium" role="group" aria-label="Podio">
-      {t.map((r) => (
-        <Link key={r.team.id} className={`pod m${r.pos <= 3 ? r.pos : 3}`} href={`/squadra/${r.team.id}`}>
-          <Logo id={r.team.id} width={r === m.now[0] ? 112 : 84} />
-          <div className="rk">{r.pos}° posto</div>
-          <div className="nm">{r.team.name}</div>
-          <div className="pt">{r.pts}</div>
-        </Link>
-      ))}
-    </div>
   );
 }
 
@@ -146,26 +128,6 @@ export function WeekPodium({ m }: { m: Model }) {
   );
 }
 
-export function MomentTeam({ m }: { m: Model }) {
-  const r = m.week[0];
-  if (!r || !r.pts) return <p className="empty">Nessun punto negli ultimi 7 giorni.</p>;
-  const d = r.pts - r.prevW;
-  return (
-    <Link className="moment" href={`/squadra/${r.team.id}`}>
-      <Logo id={r.team.id} width={64} />
-      <div>
-        <div className="nm">{r.team.name}</div>
-        <div className="mt">
-          <span>+{r.pts} punti in 7 giorni</span>
-          <span className={d > 0 ? "up" : d < 0 ? "down" : "same"}>
-            {d > 0 ? "▲ " + d : d < 0 ? "▼ " + -d : "="} sulla settimana prima
-          </span>
-        </div>
-      </div>
-    </Link>
-  );
-}
-
 export function MomentsList({ m, n }: { m: Model; n?: number }) {
   const M = m.moments.slice(0, n ?? 999);
   return M.length ? (
@@ -218,144 +180,6 @@ export function Upcoming({ m, events }: { m: Model; events: CalEvent[] }) {
   );
 }
 
-export function Recent({ m, n }: { m: Model; n: number }) {
-  const list = [...m.acts].reverse().slice(0, n);
-  return list.length ? (
-    <div className="list">
-      {list.map((a) => (
-        <ActCard key={a.id} a={a} teamOf={m.teamOf} />
-      ))}
-    </div>
-  ) : (
-    <p className="empty">Nessuna attività registrata per ora.</p>
-  );
-}
-
-export function MiniStats({ m }: { m: Model }) {
-  const total = sum(m.acts.flatMap((a) => a.awards.map((w) => w.pts)));
-  const withPts = new Set(m.acts.flatMap((a) => a.awards.map((w) => w.cls))).size;
-  const lead =
-    m.started && m.now[0].pts > 0
-      ? m.now
-          .filter((r) => r.pos === 1)
-          .map((r) => r.team.name)
-          .join(" e ")
-      : "–";
-  return (
-    <StatGrid
-      items={[
-        [m.acts.length, "attività svolte"],
-        [total, "punti assegnati"],
-        [withPts + " / " + allClasses(m.teams).length, "classi con punti"],
-        [lead, "in testa"],
-      ]}
-    />
-  );
-}
-
-export function PowerBoard({ m }: { m: Model }) {
-  if (!m.power.some((r) => r.sc > 0)) return <p className="empty">Nessun punto negli ultimi 30 giorni: la forma si calcola dalle prossime attività.</p>;
-  return (
-    <>
-      <ol className="board">
-        {m.power.map((r) => {
-          const d = r.off - r.pos;
-          return (
-            <li key={r.team.id}>
-              <Link className="row" href={`/squadra/${r.team.id}`}>
-                <div className="pos">{r.pos}</div>
-                <Logo id={r.team.id} width={56} />
-                <div>
-                  <div className="nm">{r.team.name}</div>
-                  <div className="mt">
-                    <span>
-                      {r.w} pt negli ultimi 7 gg · {r.m} dall&apos;8° al 30°
-                    </span>
-                    {d !== 0 ? <span className={d > 0 ? "var up" : "var down"}>{d > 0 ? `▲ ${d}` : `▼ ${-d}`} rispetto alla classifica</span> : null}
-                  </div>
-                </div>
-                <div className="pt">
-                  {r.sc}
-                  <small>forma</small>
-                </div>
-              </Link>
-            </li>
-          );
-        })}
-      </ol>
-      <p className="note">
-        Forma = 2 × punti degli ultimi 7 giorni + punti dall&apos;8° al 30° giorno. È solo indicativa: la classifica ufficiale è quella generale.
-      </p>
-    </>
-  );
-}
-
-export function Feed({ m, n }: { m: Model; n?: number }) {
-  if (!m.hist.length) return <p className="empty">Il feed si riempie appena viene registrata la prima attività.</p>;
-  return (
-    <div className="list">
-      {[...m.hist]
-        .reverse()
-        .slice(0, n ?? 999)
-        .map((h) => {
-          const gains = m.teams
-            .map((g) => ({ g, v: h.ap[g.id] }))
-            .filter((x) => x.v !== 0)
-            .sort((a, b) => b.v - a.v);
-          const ch = h.prevPos
-            ? m.teams
-                .map((g) => ({ g, d: h.prevPos![g.id] - h.pos[g.id], p: h.pos[g.id] }))
-                .filter((x) => x.d !== 0)
-                .sort((a, b) => a.p - b.p)
-            : [];
-          return (
-            <article className="act" key={h.a.id}>
-              <h3>
-                {h.a.title} {h.a.type ? <span className="badge">{h.a.type}</span> : null}
-              </h3>
-              <div className="d">{fmt(h.a.date)}</div>
-              <div className="chips">
-                {gains.map((x) => (
-                  <span className="chip" key={x.g.id}>
-                    <Dot team={x.g} />
-                    <Link href={`/squadra/${x.g.id}`}>{x.g.name}</Link>
-                    <b>
-                      {x.v > 0 ? "+" : ""}
-                      {x.v}
-                    </b>
-                  </span>
-                ))}
-              </div>
-              {ch.length ? (
-                <p>
-                  {ch.map((x, i) => (
-                    <span key={x.g.id}>
-                      {i ? " · " : ""}
-                      <span className={x.d > 0 ? "up" : "down"}>{x.d > 0 ? "▲" : "▼"}</span> {x.g.name} {x.d > 0 ? "sale" : "scende"} al {ord(x.p)} posto
-                    </span>
-                  ))}
-                </p>
-              ) : null}
-              <details style={{ marginTop: 8 }}>
-                <summary className="note" style={{ marginTop: 0, cursor: "pointer" }}>
-                  Punti per classe
-                </summary>
-                <div className="chips">
-                  {h.a.awards.map((w, i) => (
-                    <AwardChip key={i} w={w} teamOf={m.teamOf} />
-                  ))}
-                </div>
-              </details>
-            </article>
-          );
-        })}
-    </div>
-  );
-}
-
-/** Serie per i grafici: punti cumulati di ogni squadra. */
 export const dateLabels = (m: Model) => ["Inizio", ...m.acts.map((a) => fmtS(a.date))];
-export const teamSeries = (m: Model, list: Team[] = m.teams): Series[] =>
-  list.map((g) => ({ name: g.name, color: chartColor(g), vals: [0, ...m.hist.map((h) => h.pts[g.id])] }));
 /** Indice della squadra in testa (per mettere in evidenza la sua linea). */
 export const leaderIndex = (m: Model) => Math.max(0, m.teams.findIndex((t) => t.id === m.now[0].team.id));

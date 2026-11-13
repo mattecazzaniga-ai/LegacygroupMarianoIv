@@ -3,7 +3,7 @@ import { SITE } from "@/lib/config";
 import { classSlug, TEAMS } from "@/lib/teams";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const pages = ["", "/classifica", "/live", "/squadre", "/statistiche", "/rivalita", "/hall-of-fame", "/calendario", "/attivita", "/regolamento"];
+  const pages = ["", "/squadre", "/statistiche", "/rivalita", "/hall-of-fame", "/calendario", "/regolamento"];
   return [
     ...pages.map((p) => ({ url: SITE.url + p, changeFrequency: "hourly" as const })),
     ...TEAMS.map((t) => ({ url: `${SITE.url}/squadra/${t.id}` })),

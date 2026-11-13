@@ -82,7 +82,12 @@ export default function StatsView({
         <div className="g2" style={{ marginTop: 36 }}>
           <div>
             <H3 first>Quota di ogni squadra</H3>
-            <HBars rows={m.now.map((r) => ({ name: r.team.name, v: r.pts, color: chartColor(r.team), txt: total ? Math.round((r.pts / tot) * 100) + "%" : "0%" }))} />
+            <HBars
+              rows={teams.map((t) => {
+                const pts = m.now.find((r) => r.team.id === t.id)!.pts;
+                return { name: t.name, v: pts, color: chartColor(t), txt: total ? Math.round((pts / tot) * 100) + "%" : "0%" };
+              })}
+            />
           </div>
           <div>
             <H3 first>Collettivi e individuali</H3>
