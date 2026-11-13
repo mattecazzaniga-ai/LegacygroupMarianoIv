@@ -23,9 +23,24 @@ export const CONFIG = {
   timeZone: "Europe/Rome",
 } as const;
 
+function siteUrl(): string {
+  const candidates = [process.env.NEXT_PUBLIC_SITE_URL, process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_URL];
+  for (const c of candidates) {
+    if (!c) continue;
+    const v = c.trim().replace(/\/+$/, "");
+    try {
+      return new URL(/^https?:\/\//.test(v) ? v : `https://${v}`).origin;
+    } catch {
+      /* indirizzo non valido: provo il successivo */
+    }
+  }
+  return "http://localhost:3000";
+}
+
 export const SITE = {
   name: "Legacy Group",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://legacy-group.vercel.app",
+  /** Indirizzo pubblico. Se manca o è scritto male, usa quello che Vercel assegna al progetto. */
+  url: siteUrl(),
   description:
     "Legacy Group – Istituto Mariano IV, Oristano. Sei squadre, 43 classi: classifica, punti, attività e statistiche dell'anno scolastico 2026–2027.",
 };
