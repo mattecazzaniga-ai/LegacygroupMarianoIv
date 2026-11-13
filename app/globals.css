@@ -442,3 +442,4 @@ textarea{height:auto;padding:10px 12px;resize:vertical}
 .champs .muted a{color:var(--text-2);text-decoration:underline;text-decoration-color:var(--line-2);text-underline-offset:2px}
 .champs .c-pts{font-family:var(--display);font-weight:800;font-size:30px;line-height:1;text-align:right;font-variant-numeric:tabular-nums}
 .champs .c-pts small{display:block;font:500 11px var(--body);letter-spacing:.1em;color:var(--muted);text-transform:uppercase;margin-top:3px}
+.pwbox{display:grid;grid-template-columns:1fr auto;gap:8px;align-items:center}

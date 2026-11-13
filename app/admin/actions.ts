@@ -23,7 +23,10 @@ const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
 
 export async function signIn(form: FormData) {
   const sb = await supabaseServer();
-  const { error } = await sb.auth.signInWithPassword({ email: str(form, "email"), password: String(form.get("password") ?? "") });
+  // tollerante agli errori tipici da telefono: maiuscola automatica, spazi, apici copiati
+  const email = str(form, "email").toLowerCase().replace(/\s+/g, "");
+  const password = String(form.get("password") ?? "").trim().replace(/^[`'"]+|[`'"]+$/g, "");
+  const { error } = await sb.auth.signInWithPassword({ email, password });
   if (error) back("/admin/login", undefined, "Email o password non corrette.");
   redirect("/admin");
 }
