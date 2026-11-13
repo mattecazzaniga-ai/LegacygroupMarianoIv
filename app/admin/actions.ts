@@ -5,7 +5,7 @@ import { isValidDate } from "@/lib/dates";
 import { DATA_TAG } from "@/lib/data/supabase";
 import { TEAMS } from "@/lib/teams";
 import { cookies } from "next/headers";
-import { adminAccount, checkPin, GATE_COOKIE, isPinConfigured, newPass } from "@/lib/supabase/pin";
+import { GATE_COOKIE } from "@/lib/supabase/pin";
 import { requireUser, supabaseServer } from "@/lib/supabase/server";
 
 /** Dopo ogni salvataggio il sito pubblico si aggiorna subito, senza aspettare il minuto. */
@@ -22,20 +22,6 @@ const back = (path: string, msg?: string, err?: string): never => {
 };
 
 const str = (f: FormData, k: string) => String(f.get(k) ?? "").trim();
-
-export async function signIn(form: FormData) {
-  if (!isPinConfigured()) back("/admin/login", undefined, "Accesso con PIN non ancora configurato su Vercel.");
-  if (!checkPin(String(form.get("pin") ?? ""))) {
-    await new Promise((r) => setTimeout(r, 1500)); // rallenta chi prova PIN a caso
-    back("/admin/login", undefined, "PIN sbagliato.");
-  }
-  const sb = await supabaseServer();
-  const { error } = await sb.auth.signInWithPassword(adminAccount());
-  if (error) back("/admin/login", undefined, "PIN giusto, ma il collegamento al database non è riuscito. Riprova tra poco.");
-  // cookie di sessione (niente scadenza): chiuso il browser, il PIN va rimesso
-  (await cookies()).set(GATE_COOKIE, newPass(), { httpOnly: true, secure: true, sameSite: "lax", path: "/admin" });
-  redirect("/admin");
-}
 
 export async function signOut() {
   const sb = await supabaseServer();

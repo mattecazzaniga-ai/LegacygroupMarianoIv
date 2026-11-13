@@ -1,5 +1,4 @@
 import { isSupabaseConfigured } from "@/lib/data/supabase";
-import { signIn } from "../actions";
 import { Flash, NotConfigured } from "../ui";
 import PasswordInput from "./PasswordInput";
 
@@ -12,7 +11,7 @@ export default async function Login({ searchParams }: { searchParams: Promise<{ 
       <h1 className="page">Area organizzatori</h1>
       <p className="sub">Inserisci il PIN per entrare.</p>
       <Flash err={err} />
-      <form action={signIn} className="form">
+      <form action="/admin/entra" method="post" className="form">
         <label>
           PIN
           <PasswordInput />

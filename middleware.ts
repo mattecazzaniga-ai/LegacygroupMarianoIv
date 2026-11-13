@@ -17,7 +17,12 @@ export async function middleware(request: NextRequest) {
       },
     },
   });
-  await sb.auth.getUser();
+  const { data } = await sb.auth.getUser();
+  // appena inserito il PIN giusto: se il telefono non ha tenuto i cookie, lo dico invece di tornare muti al PIN
+  if (request.nextUrl.searchParams.get("da") === "pin" && (!data.user || !request.cookies.get("lg_pin"))) {
+    const msg = "PIN giusto, ma il browser non ha salvato l'accesso. Se hai aperto il link da WhatsApp o Instagram, aprilo in Safari o Chrome; controlla che i cookie non siano bloccati.";
+    return NextResponse.redirect(new URL("/admin/login?err=" + encodeURIComponent(msg), request.url), 303);
+  }
   return response;
 }
 
