@@ -6,7 +6,7 @@ import { TEAMS } from "@/lib/teams";
 
 export const metadata = meta(
   "Regolamento",
-  "Come funziona Legacy Group: squadre, tipologie di sfide, punteggi variabili da attività ad attività, riconoscimenti, classifica generale e premio finale.",
+  "Come funziona Legacy Group: squadre, tipologie di sfide, come si assegnano i punti (posizione × livello × tipo + partecipazione), riconoscimenti, classifica generale e premio finale.",
   "/regolamento",
 );
 
@@ -31,7 +31,7 @@ export default function Regolamento() {
           <ol>
             <li><a href="#squadre">Le squadre</a></li>
             <li><a href="#sfide">Le sfide</a></li>
-            <li><a href="#punti">Il punteggio</a></li>
+            <li><a href="#punti">Come si assegnano i punti</a></li>
             <li><a href="#meriti">Riconoscimenti e meriti</a></li>
             <li><a href="#classifica">La classifica generale</a></li>
             <li><a href="#premio">Il premio finale</a></li>
@@ -90,21 +90,129 @@ export default function Regolamento() {
           <article id="punti">
             <span className="n" aria-hidden="true">03</span>
             <div>
-              <h2>Il punteggio</h2>
+              <h2>Come si assegnano i punti</h2>
               <p>
-                <b>Non esiste una tabella di punti uguale per tutte le sfide.</b> Ogni attività ha il proprio sistema di assegnazione, stabilito in
-                base al tipo di prova, alla sua difficoltà, agli obiettivi e ai criteri di valutazione. Per questo i punti possono cambiare anche
-                molto da una sfida all&apos;altra.
+                I punti vanno alle <b>classi</b> e la somma dei punti delle classi forma il punteggio della squadra. Ogni attività segue sempre la
+                stessa formula:
               </p>
+              <p className="formula">
+                Punti = <b>Posizione</b> × <b>Livello</b> × <b>Tipo</b> + <b>Partecipazione</b>
+              </p>
+
+              <h3>1. La posizione</h3>
+              <p>Si premiano le prime cinque posizioni. Dal 6° posto in poi non si prendono punti di posizione.</p>
+              <ul className="scale" aria-label="Punti per posizione">
+                {[
+                  ["1°", 10],
+                  ["2°", 8],
+                  ["3°", 6],
+                  ["4°", 4],
+                  ["5°", 2],
+                ].map(([p, v]) => (
+                  <li key={p}>
+                    <span>{p}</span>
+                    <b>{v}</b>
+                  </li>
+                ))}
+              </ul>
+
+              <h3>2. Il livello dell&apos;attività</h3>
+              <p>Più l&apos;attività è importante, più vale. Il livello viene annunciato prima dell&apos;attività.</p>
+              <ul className="bul">
+                <li>
+                  <b>Livello 1</b>, attività piccola: ×1
+                </li>
+                <li>
+                  <b>Livello 2</b>, torneo o gara di istituto: ×2
+                </li>
+                <li>
+                  <b>Livello 3</b>, evento grande: ×3
+                </li>
+              </ul>
+
+              <h3>3. Il tipo</h3>
+              <ul className="bul">
+                <li>
+                  <b>Collettivo</b>, gioca la classe: ×2
+                </li>
+                <li>
+                  <b>Singolo</b>, gioca un solo studente per la sua classe: ×1
+                </li>
+              </ul>
+
+              <h3>4. La partecipazione</h3>
               <p>
-                <b>I criteri e i punti in palio vengono comunicati per ciascuna sfida</b>, prima o in occasione della sfida stessa.
+                Quando un&apos;attività prevede il punto di partecipazione, tutte le classi che partecipano ricevono in più un punto per ogni livello:{" "}
+                <b>+1</b> al livello 1, <b>+2</b> al livello 2, <b>+3</b> al livello 3. Si somma ai punti della posizione. Non tutte le attività lo
+                prevedono: viene comunicato prima.
               </p>
-              <p>
-                I punti vanno sempre alle <b>classi</b> e da lì alla loro squadra. Possono essere <b>collettivi</b>, assegnati a tutta la classe, o{" "}
-                <b>individuali</b>, ottenuti da uno studente e attribuiti alla sua classe. Sul sito compaiono solo le sigle delle classi, mai i
-                nomi degli studenti.
-              </p>
-              <p>Ogni assegnazione viene registrata una sola volta, così nessun punto viene contato due volte.</p>
+
+              <h3>Esempi</h3>
+              <div className="examples">
+                <div>
+                  <p className="ex-t">Torneo di livello 2, collettivo, con partecipazione</p>
+                  <p>
+                    1° posto: 10 × 2 × 2 + 2 = <b>42 punti</b>
+                    <br />
+                    4° posto: 4 × 2 × 2 + 2 = <b>18 punti</b>
+                    <br />
+                    8° posto: solo la partecipazione, <b>2 punti</b>
+                  </p>
+                </div>
+                <div>
+                  <p className="ex-t">Gara di livello 3, singolo, senza partecipazione</p>
+                  <p>
+                    3° posto: 6 × 3 × 1 = <b>18 punti</b>
+                    <br />
+                    6° posto: <b>0 punti</b>
+                  </p>
+                </div>
+              </div>
+
+              <h3>Tabella rapida (senza partecipazione)</h3>
+              <div className="scroll">
+                <table className="tbl qt">
+                  <thead>
+                    <tr>
+                      <th scope="col" rowSpan={2}>
+                        Pos.
+                      </th>
+                      <th scope="colgroup" colSpan={3}>
+                        Collettivo
+                      </th>
+                      <th scope="colgroup" colSpan={3}>
+                        Singolo
+                      </th>
+                    </tr>
+                    <tr>
+                      {["L1", "L2", "L3", "L1", "L2", "L3"].map((l, i) => (
+                        <th scope="col" key={i}>
+                          {l}
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[10, 8, 6, 4, 2].map((p, i) => (
+                      <tr key={p}>
+                        <th scope="row">{i + 1}°</th>
+                        {[2, 1].flatMap((t) => [1, 2, 3].map((l) => <td key={`${t}${l}`}>{p * l * t}</td>))}
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <h3>Regole</h3>
+              <ul className="bul">
+                <li>Prima di ogni attività vengono comunicati livello, tipo e se c&apos;è la partecipazione. Non si cambiano dopo.</li>
+                <li>Ogni assegnazione viene registrata una sola volta e compare nello storico della classe sul sito.</li>
+                <li>
+                  A pari merito, le classi ricevono tutte i punti della posizione più alta. La posizione successiva viene saltata (due classi prime,
+                  la successiva è terza).
+                </li>
+                <li>Sul sito compaiono solo le classi, mai i nomi degli studenti.</li>
+              </ul>
             </div>
           </article>
 
