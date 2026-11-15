@@ -36,7 +36,7 @@ export default function PointsForm({ id, groups }: { id: number; groups: { team:
 
   return (
     <div className="addpts">
-      <h3>Aggiungi punti</h3>
+      <h3>Aggiungi punti a mano</h3>
       {rows.map((r, i) => (
         <div className="prow" key={i}>
           <label>

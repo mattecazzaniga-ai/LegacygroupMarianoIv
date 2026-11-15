@@ -6,6 +6,7 @@ import { requireUser } from "@/lib/supabase/server";
 import { TEAMS } from "@/lib/teams";
 import { deleteActivity, deletePoint, setFlags, updateActivity } from "../../actions";
 import { AdminBar, Flash, NotConfigured } from "../../ui";
+import FormulaForm from "./FormulaForm";
 import PointsForm from "./PointsForm";
 import WinnerField from "../../WinnerField";
 
@@ -92,7 +93,11 @@ export default async function EditActivity({ params, searchParams }: { params: P
           })}
         </ul>
       ) : null}
-      <PointsForm id={id} groups={groups} />
+      <FormulaForm id={id} groups={groups} />
+      <details className="manual">
+        <summary>Inserimento manuale (solo per correzioni)</summary>
+        <PointsForm id={id} groups={groups} />
+      </details>
 
       <h2 className="ah">Dati dell&apos;attività</h2>
       <form action={updateActivity.bind(null, id)} className="form">

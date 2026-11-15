@@ -574,3 +574,26 @@ textarea{height:auto;padding:10px 12px;resize:vertical}
 .tbl.qt th,.tbl.qt td{text-align:center;padding:8px 4px;font-variant-numeric:tabular-nums}
 .tbl.qt tbody th{color:var(--gold);font-weight:700}
 @media(min-width:720px){.examples{grid-template-columns:1fr 1fr}}
+
+/* admin: formula del punteggio */
+.formula-box .fx{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.03em;font-size:16px;color:var(--text);margin-bottom:12px}
+.formula-box .fx b{color:var(--gold);font-weight:800}
+.fset{display:grid;gap:10px;margin-bottom:6px}
+.flab{display:block;font-size:12px;font-weight:600;color:var(--muted);margin-bottom:4px}
+.seg.fseg{margin-bottom:0;display:flex;flex-wrap:wrap}
+.seg.fseg button{min-height:38px;padding:6px 12px}
+.frow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 40px;grid-template-areas:"c r x" "o o o";gap:8px;margin-top:10px;padding-bottom:10px;border-bottom:1px solid var(--line)}
+.frow>label:nth-child(1){grid-area:c}.frow>label:nth-child(2){grid-area:r}.frow>output{grid-area:o}.frow>:nth-child(4){grid-area:x}
+.fpts{display:flex;align-items:baseline;gap:8px;min-height:0}
+.fpts b{font-family:var(--display);font-weight:800;font-size:24px;color:var(--gold);font-variant-numeric:tabular-nums}
+.fpts small{font-size:12px;color:var(--muted)}
+.fpts.zero b{color:var(--muted)}
+.flash.warn{border-color:rgba(216,178,94,.5);background:rgba(216,178,94,.07);color:var(--text-2)}
+.flash.warn ul{margin:6px 0 0;padding-left:18px}
+.manual{margin-top:18px}
+.manual summary{cursor:pointer;color:var(--text-2);font-size:14px;padding:6px 0}
+.manual .addpts{margin-top:8px}
+@media(min-width:620px){
+  .fset{grid-template-columns:auto auto auto;justify-content:start;gap:18px}
+  .frow{grid-template-columns:minmax(0,1fr) minmax(0,1fr) minmax(0,1.2fr) 40px;grid-template-areas:"c r o x";align-items:center;border-bottom:0;padding-bottom:0}
+}
