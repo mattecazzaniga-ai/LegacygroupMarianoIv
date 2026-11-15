@@ -221,11 +221,14 @@ export default function Regolamento() {
             <div>
               <h2>Riconoscimenti e meriti</h2>
               <p>
-                I punti non arrivano solo vincendo una gara. Una classe o una squadra può riceverli anche per <b>collaborazione</b>, <b>aiuto</b>,{" "}
-                <b>disponibilità</b> e <b>ottimo lavoro</b>: per aver dato una mano concreta, per aver svolto un lavoro particolarmente positivo o per
-                aver contribuito alla riuscita di un&apos;iniziativa.
+                Una classe può ricevere punti anche per <b>collaborazione</b>, <b>aiuto</b>, <b>disponibilità</b> e <b>ottimo lavoro</b>: per aver dato
+                una mano concreta, per aver svolto un lavoro particolarmente positivo o per aver contribuito alla riuscita di un&apos;iniziativa.
               </p>
-              <p>Questi punti sono valutati dagli organizzatori e, come tutti gli altri, confluiscono nella classifica generale.</p>
+              <p>
+                Questi riconoscimenti valgono quanto <b>la partecipazione</b>: 1 punto per il livello dell&apos;attività, cioè <b>+1</b> al livello 1,{" "}
+                <b>+2</b> al livello 2, <b>+3</b> al livello 3.
+              </p>
+              <p>Sono valutati dagli organizzatori e, come tutti gli altri punti, confluiscono nella classifica generale.</p>
             </div>
           </article>
 
