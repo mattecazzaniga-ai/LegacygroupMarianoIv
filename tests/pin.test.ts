@@ -33,3 +33,19 @@ describe("accesso con PIN", async () => {
     expect(validPass(p, t)).toBe(false);
   });
 });
+
+describe("impronta del dispositivo", async () => {
+  const { clientIp, deviceKey, minutesLeft } = await import("@/lib/supabase/pin");
+  it("usa l'IP dato da Vercel e non lo salva in chiaro", () => {
+    expect(clientIp(new Headers({ "x-vercel-forwarded-for": "1.2.3.4", "x-forwarded-for": "9.9.9.9" }))).toBe("1.2.3.4");
+    expect(clientIp(new Headers({ "x-forwarded-for": "5.6.7.8, 10.0.0.1" }))).toBe("5.6.7.8");
+    const k = deviceKey("1.2.3.4");
+    expect(k).toMatch(/^[0-9a-f]{64}$/);
+    expect(k).not.toContain("1.2.3.4");
+    expect(deviceKey("1.2.3.5")).not.toBe(k);
+  });
+  it("minuti rimasti arrotondati per eccesso", () => {
+    expect(minutesLeft(new Date(1_000_000 + 14.2 * 60000).toISOString(), 1_000_000)).toBe(15);
+    expect(minutesLeft(new Date(1_000_000 + 5000).toISOString(), 1_000_000)).toBe(1);
+  });
+});

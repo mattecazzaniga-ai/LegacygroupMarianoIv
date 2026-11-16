@@ -40,3 +40,14 @@ export function validPass(value: string | undefined, now = Date.now()): boolean 
   if (!Number.isFinite(t) || now - t > MAX_AGE_MS || t > now + 60_000) return false;
   return same(mac ?? "", sign(ts));
 }
+
+/** Impronta del dispositivo per il blocco dei tentativi: HMAC dell'indirizzo IP (l'IP non viene mai salvato). */
+export const deviceKey = (ip: string) => createHmac("sha256", `${env().password}|tentativi`).update(ip).digest("hex");
+
+/** Indirizzo del visitatore: su Vercel l'intestazione x-vercel-forwarded-for è impostata dalla piattaforma. */
+export function clientIp(h: Headers): string {
+  const v = h.get("x-vercel-forwarded-for") ?? h.get("x-real-ip") ?? h.get("x-forwarded-for") ?? "";
+  return v.split(",")[0].trim() || "sconosciuto";
+}
+
+export const minutesLeft = (until: string, now = Date.now()) => Math.max(1, Math.ceil((Date.parse(until) - now) / 60000));

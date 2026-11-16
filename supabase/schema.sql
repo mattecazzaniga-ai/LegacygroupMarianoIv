@@ -153,3 +153,52 @@ begin
 end $$;
 
 -- Per togliere un organizzatore: delete from public.organizzatori where email = '...';
+
+-- ---------------------------------------------------------------- blocco dei tentativi sul PIN
+-- Dopo 5 PIN sbagliati dallo stesso dispositivo (impronta dell'indirizzo IP, mai l'IP in chiaro)
+-- l'ingresso è bloccato per 15 minuti. La tabella non è leggibile da nessuno: si usa solo con queste funzioni.
+create table if not exists public.pin_tentativi (
+  chiave text primary key check (chiave ~ '^[0-9a-f]{64}$'),
+  falliti int not null default 0,
+  ultimo timestamptz not null default now(),
+  bloccato_fino timestamptz
+);
+alter table public.pin_tentativi enable row level security;
+revoke all on public.pin_tentativi from anon, authenticated;
+
+-- fino a quando è bloccato (null = libero)
+create or replace function public.pin_bloccato(k text) returns timestamptz
+language sql stable security definer set search_path = public as $$
+  select bloccato_fino from public.pin_tentativi where chiave = k and bloccato_fino > now()
+$$;
+
+-- registra un PIN sbagliato; restituisce i tentativi rimasti (0 = appena bloccato)
+create or replace function public.pin_errore(k text) returns int
+language plpgsql security definer set search_path = public as $$
+declare n int;
+begin
+  if k !~ '^[0-9a-f]{64}$' then raise exception 'chiave non valida'; end if;
+  delete from public.pin_tentativi where ultimo < now() - interval '1 day';
+  insert into public.pin_tentativi as t (chiave, falliti, ultimo) values (k, 1, now())
+  on conflict (chiave) do update set
+    falliti = case when t.ultimo < now() - interval '15 minutes' or t.bloccato_fino <= now() then 1 else t.falliti + 1 end,
+    bloccato_fino = case when t.bloccato_fino <= now() then null else t.bloccato_fino end,
+    ultimo = now()
+  returning falliti into n;
+  if n >= 5 then
+    update public.pin_tentativi set bloccato_fino = now() + interval '15 minutes', falliti = 0 where chiave = k;
+    return 0;
+  end if;
+  return 5 - n;
+end $$;
+
+-- PIN giusto: azzera il conteggio (solo l'organizzatore appena entrato)
+create or replace function public.pin_azzera(k text) returns void
+language sql security definer set search_path = public as $$
+  delete from public.pin_tentativi where chiave = k and public.is_organizzatore()
+$$;
+
+revoke all on function public.pin_bloccato(text), public.pin_errore(text), public.pin_azzera(text) from public;
+grant execute on function public.pin_bloccato(text), public.pin_errore(text) to anon, authenticated;
+revoke execute on function public.pin_azzera(text) from anon;
+grant execute on function public.pin_azzera(text) to authenticated;
