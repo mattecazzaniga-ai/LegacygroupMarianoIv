@@ -172,12 +172,15 @@ language sql stable security definer set search_path = public as $$
   select bloccato_fino from public.pin_tentativi where chiave = k and bloccato_fino > now()
 $$;
 
--- registra un PIN sbagliato; restituisce i tentativi rimasti (0 = appena bloccato)
-create or replace function public.pin_errore(k text) returns int
+-- registra un PIN sbagliato; restituisce i tentativi rimasti (0 = appena bloccato).
+-- `limite`: 5 per il singolo dispositivo; la chiave "globale" usa un limite più alto (vedi app/admin/entra).
+drop function if exists public.pin_errore(text);
+create or replace function public.pin_errore(k text, limite int default 5) returns int
 language plpgsql security definer set search_path = public as $$
 declare n int;
 begin
   if k !~ '^[0-9a-f]{64}$' then raise exception 'chiave non valida'; end if;
+  if limite < 5 or limite > 30 then raise exception 'limite non valido'; end if;
   delete from public.pin_tentativi where ultimo < now() - interval '1 day';
   insert into public.pin_tentativi as t (chiave, falliti, ultimo) values (k, 1, now())
   on conflict (chiave) do update set
@@ -185,11 +188,11 @@ begin
     bloccato_fino = case when t.bloccato_fino <= now() then null else t.bloccato_fino end,
     ultimo = now()
   returning falliti into n;
-  if n >= 5 then
+  if n >= limite then
     update public.pin_tentativi set bloccato_fino = now() + interval '15 minutes', falliti = 0 where chiave = k;
     return 0;
   end if;
-  return 5 - n;
+  return limite - n;
 end $$;
 
 -- PIN giusto: azzera il conteggio (solo l'organizzatore appena entrato)
@@ -198,7 +201,7 @@ language sql security definer set search_path = public as $$
   delete from public.pin_tentativi where chiave = k and public.is_organizzatore()
 $$;
 
-revoke all on function public.pin_bloccato(text), public.pin_errore(text), public.pin_azzera(text) from public;
-grant execute on function public.pin_bloccato(text), public.pin_errore(text) to anon, authenticated;
+revoke all on function public.pin_bloccato(text), public.pin_errore(text, int), public.pin_azzera(text) from public;
+grant execute on function public.pin_bloccato(text), public.pin_errore(text, int) to anon, authenticated;
 revoke execute on function public.pin_azzera(text) from anon;
 grant execute on function public.pin_azzera(text) to authenticated;

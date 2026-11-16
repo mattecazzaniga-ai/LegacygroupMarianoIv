@@ -44,6 +44,14 @@ describe("impronta del dispositivo", async () => {
     expect(k).not.toContain("1.2.3.4");
     expect(deviceKey("1.2.3.5")).not.toBe(k);
   });
+  it("IPv6: stesso telefono = stessa rete /64", async () => {
+    const { deviceId } = await import("@/lib/supabase/pin");
+    expect(deviceId("2001:db8:aa:1:1111:2222:3333:4444")).toBe("2001:db8:aa:1::/64");
+    expect(deviceId("2001:db8:aa:1::99")).toBe("2001:db8:aa:1::/64");
+    expect(deviceId("2001:0db8::1")).toBe("2001:db8:0:0::/64");
+    expect(deviceId("1.2.3.4")).toBe("1.2.3.4");
+  });
+
   it("minuti rimasti arrotondati per eccesso", () => {
     expect(minutesLeft(new Date(1_000_000 + 14.2 * 60000).toISOString(), 1_000_000)).toBe(15);
     expect(minutesLeft(new Date(1_000_000 + 5000).toISOString(), 1_000_000)).toBe(1);

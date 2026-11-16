@@ -50,4 +50,18 @@ export function clientIp(h: Headers): string {
   return v.split(",")[0].trim() || "sconosciuto";
 }
 
+/** IPv6: un telefono cambia spesso gli ultimi 64 bit, quindi si conta la rete (/64), non l'indirizzo intero. */
+export function deviceId(ip: string): string {
+  if (!ip.includes(":")) return ip;
+  const [head, tail = ""] = ip.toLowerCase().split("::");
+  const h = head ? head.split(":") : [];
+  const t = tail ? tail.split(":") : [];
+  const full = [...h, ...Array(Math.max(0, 8 - h.length - t.length)).fill("0"), ...t];
+  return full.slice(0, 4).map((x) => x.replace(/^0+(?=.)/, "")).join(":") + "::/64";
+}
+
+/** Chiave comune a tutti i dispositivi: ferma chi prova PIN cambiando indirizzo. */
+export const GLOBAL_LIMIT = 30;
+export const globalKey = () => deviceKey("__tutti__");
+
 export const minutesLeft = (until: string, now = Date.now()) => Math.max(1, Math.ceil((Date.parse(until) - now) / 60000));
