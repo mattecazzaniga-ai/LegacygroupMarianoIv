@@ -39,8 +39,12 @@ export function Board({ m, detail = false }: { m: Model; detail?: boolean }) {
                 <div className="mt">
                   {m.started ? <Var m={m} id={r.team.id} pos={r.pos} /> : null}
                   <span>{r.team.classes.length} classi</span>
-                  {detail && m.started && k > 0 && above > 0 ? <span>−{above} dalla precedente</span> : null}
-                  {detail && m.started && k === 0 && m.now[1] && r.pts > m.now[1].pts ? <span>+{r.pts - m.now[1].pts} sulla seconda</span> : null}
+                  {detail && m.started && k > 0 && above > 0 ? <span>
+                      {above} {above === 1 ? "punto" : "punti"} dietro {m.now[k - 1].team.name}
+                    </span> : null}
+                  {detail && m.started && k === 0 && m.now[1] && r.pts > m.now[1].pts ? <span>
+                      {r.pts - m.now[1].pts} {r.pts - m.now[1].pts === 1 ? "punto" : "punti"} di vantaggio
+                    </span> : null}
                 </div>
                 <div className="bar" aria-hidden="true">
                   <i style={{ width: `${r.pts > 0 ? Math.max(3, (r.pts / maxPts) * 100) : 0}%`, background: chartColor(r.team) }} />
